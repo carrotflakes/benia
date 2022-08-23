@@ -32,7 +32,7 @@ function App() {
       setStrokes(s => [...s, stroke])
     }
     setTrail([])
-  }, [trail]))
+  }, [trail, color]))
 
 
   useEffect(() => {
@@ -58,7 +58,7 @@ function App() {
         strokes: strokesToDraw
       }]
     })
-  }, [strokes, trail])
+  }, [strokes, trail, color])
 
   return (
     <div className="App">
