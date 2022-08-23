@@ -1,8 +1,7 @@
-import { appendFileSync } from 'fs';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { SketchPicker } from 'react-color';
 import './App.css';
-import { useCursorTrack, useCursorTrackEventHandler } from './useCursorTrack';
+import { useCursorTrackEventHandler } from './useCursorTrack';
 
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
@@ -75,7 +74,7 @@ function App() {
       ></canvas>
       <SketchPicker color={color} onChange={c => {
         setColor(c.hex)
-      }}/>
+      }} />
     </div>
   );
 }
