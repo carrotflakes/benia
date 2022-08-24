@@ -3,6 +3,17 @@
   background: #444;
 }
 
+.button {
+  display: inline-block;
+  margin: 0.1em;
+  width: 2em;
+  height: 2em;
+  background: #222;
+  text-align: center;
+  user-select: none;
+  cursor: pointer;
+}
+
 .circle {
   display: inline-block;
   margin: 0.1em;

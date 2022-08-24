@@ -97,6 +97,7 @@ function App() {
         />
         <TreeView
           image={image}
+          currentLayer={[layerI, setLayerI]}
           dispatch={op => setImage(i => op(i))}
         />
       </div>
@@ -110,6 +111,7 @@ function draw(ctx: CanvasRenderingContext2D, image: Image) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
   for (let layer of image.layers) {
+    if (layer.hide) continue
     for (let stroke of layer.strokes) {
       ctx.lineWidth = stroke.width
       ctx.strokeStyle = stroke.color

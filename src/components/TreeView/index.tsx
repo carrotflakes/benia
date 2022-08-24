@@ -4,9 +4,10 @@ import * as model from "../../model"
 import './index.css'
 
 export const TreeView = (
-  { image, dispatch }:
+  { image, currentLayer, dispatch }:
     {
       image: model.Image,
+      currentLayer: [number, Dispatch<SetStateAction<number>>],
       dispatch: (operation: (image: model.Image) => model.Image) => void
     }) => {
   return <div className="TreeView">
@@ -21,6 +22,7 @@ export const TreeView = (
             key={i}
             layerI={i}
             layer={layer}
+            currentLayer={currentLayer}
             dispatch={dispatch}
           />
         ))
@@ -42,16 +44,36 @@ export const TreeView = (
 }
 
 const Layer = (
-  { layer, layerI, dispatch }: {
+  { layer, layerI, currentLayer, dispatch }: {
     layerI: number,
     layer: model.Layer,
+    currentLayer: [number, Dispatch<SetStateAction<number>>],
     dispatch: (operation: (image: model.Image) => model.Image) => void,
   }) => {
   const [showStrokes, setShowStrokes] = useState(false)
 
   return <div className="Layer">
     <div>
-      layer&nbsp;
+      <div
+        style={{
+          display: 'inline-block',
+          width: 10,
+          height: 10,
+          borderRadius: '50%',
+          background: currentLayer[0] === layerI ? '#fa0' : '#666',
+          cursor: 'pointer',
+        }}
+        onClick={() => currentLayer[1](layerI)}>
+      </div>
+      &nbsp;
+      layer
+      &nbsp;
+      <div
+        className="button"
+        onClick={() => dispatch(img => produce(img, img => {
+          img.layers[layerI].hide = !img.layers[layerI].hide
+        }))}
+      >hide</div>
       <div
         className="button"
         onClick={() => dispatch(img => produce(img, img => {
@@ -95,6 +117,12 @@ const Stroke = (
     }}>
     </div>
     {stroke.poses.length}
+    <div
+      className="button"
+      onClick={() => dispatch(img => produce(img, img => {
+        img.layers[path[0]].strokes[path[1]].close = !img.layers[path[0]].strokes[path[1]].close
+      }))}
+    >close</div>
     <div
       className="button"
       onClick={() => dispatch(img => produce(img, img => {
