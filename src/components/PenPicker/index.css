@@ -1,4 +1,5 @@
 .PenPicker {
+  margin: 1em;
   background: #444;
 }
 
@@ -8,7 +9,7 @@
   width: 2em;
   height: 2em;
   border-radius: 50%;
-  background: #999;
+  background: #222;
   text-align: center;
   user-select: none;
   cursor: pointer;

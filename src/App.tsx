@@ -17,6 +17,7 @@ function App() {
       strokes: [],
     }]
   } as Image)
+  const [layerI, setLayerI] = useState(0)
   const [color, setColor] = useState('black')
   const [lineWidth, setLineWidth] = useState(3)
 
@@ -41,12 +42,12 @@ function App() {
       }
       setImage(img => {
         return produce(img, (img) => {
-          img.layers[0].strokes.push(stroke)
+          img.layers[layerI].strokes.push(stroke)
         })
       })
     }
     setTrail([])
-  }, [color, lineWidth, trail]))
+  }, [color, layerI, lineWidth, trail]))
 
 
   useEffect(() => {
@@ -59,7 +60,7 @@ function App() {
 
     if (trail.length > 2) {
       imageToDraw = produce(imageToDraw, img => {
-        img.layers[0].strokes.push({
+        img.layers[layerI].strokes.push({
           poses: trail,
           close: false,
           color,
@@ -69,13 +70,13 @@ function App() {
     }
 
     draw(ctx, imageToDraw)
-  }, [image, trail, color, lineWidth])
+  }, [image, trail, color, lineWidth, layerI])
 
   return (
     <div className="App">
-      <div>
-        drawStroke
-      </div>
+      <header>
+        benia - paint app
+      </header>
       <canvas
         className='canvas'
         ref={canvasRef}
@@ -90,8 +91,14 @@ function App() {
             setColor(c.hex)
           }}
         />
-        <PenPicker lineWidth={lineWidth} onChange={w => setLineWidth(w)} />
-        <TreeView image={image} />
+        <PenPicker
+          lineWidth={lineWidth}
+          onChange={w => setLineWidth(w)}
+        />
+        <TreeView
+          image={image}
+          dispatch={op => setImage(i => op(i))}
+        />
       </div>
     </div>
   );
@@ -120,7 +127,6 @@ function draw(ctx: CanvasRenderingContext2D, image: Image) {
     }
   }
 }
-
 
 function distance(a: [number, number], b: [number, number]) {
   return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2);

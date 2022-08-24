@@ -6,6 +6,7 @@ export type Image = {
 
 export type Layer = {
   strokes: Stroke[]
+  hide?: boolean
 }
 
 export type Stroke = {
