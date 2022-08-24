@@ -12,3 +12,17 @@
   background-size: 20px 20px;
   background-position: 0 0, 10px 10px;
 }
+
+.button {
+  display: inline-block;
+  margin: 0.1em;
+  padding: 0.1em 0.3em;
+  background: #444;
+  text-align: center;
+  user-select: none;
+  cursor: pointer;
+}
+
+.active {
+  background: #555;
+}

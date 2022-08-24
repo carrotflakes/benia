@@ -1,5 +1,5 @@
 import produce from 'immer';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CompactPicker } from 'react-color';
 import style from './index.module.css';
 import { useCursorTrackEventHandler } from '../../hooks/useCursorTrack';
@@ -10,6 +10,7 @@ import { PenPicker } from '../../components/PenPicker';
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
 
+  const [mode, setMode] = useState('pen' as 'pen' | 'move')
   const [trail, setTrail] = useState([] as [number, number][])
   const [image, setImage] = useState({
     size: [400, 400],
@@ -21,34 +22,53 @@ function App() {
   const [color, setColor] = useState('black')
   const [lineWidth, setLineWidth] = useState(3)
 
-  const handlers = useCursorTrackEventHandler(useCallback((pos) => {
-    setTrail([pos])
-  }, []), useCallback((pos) => {
-    const last = trail.at(-1)
-    if (last) {
-      const d = distance(last, pos)
-      if (10 <= d) {
-        setTrail(ps => [...ps, pos])
-      }
+  const modeHandlers = useMemo(() => ({
+    pen: {
+      mouseDown: (pos: [number, number]) => {
+        setTrail([pos])
+      },
+      mouseMove: (pos: [number, number]) => {
+        const last = trail.at(-1)
+        if (last) {
+          const d = distance(last, pos)
+          if (10 <= d) {
+            setTrail(ps => [...ps, pos])
+          }
+        }
+      },
+      mouseUp: () => {
+        if (trail.length > 2) {
+          const stroke =
+          {
+            poses: trail,
+            close: false,
+            color,
+            width: lineWidth,
+          }
+          setImage(img => {
+            return produce(img, (img) => {
+              img.layers[layerI].strokes.push(stroke)
+            })
+          })
+        }
+        setTrail([])
+      },
+    },
+    move: {
+      mouseDown: (pos: [number, number]) => {
+      },
+      mouseMove: (pos: [number, number]) => {
+      },
+      mouseUp: () => {
+      },
     }
-  }, [trail]), useCallback(() => {
-    if (trail.length > 2) {
-      const stroke =
-      {
-        poses: trail,
-        close: false,
-        color,
-        width: lineWidth,
-      }
-      setImage(img => {
-        return produce(img, (img) => {
-          img.layers[layerI].strokes.push(stroke)
-        })
-      })
-    }
-    setTrail([])
-  }, [color, layerI, lineWidth, trail]))
+  }[mode]), [color, layerI, lineWidth, mode, trail])
 
+  const handlers = useCursorTrackEventHandler(
+    modeHandlers.mouseDown,
+    modeHandlers.mouseMove,
+    modeHandlers.mouseUp,
+  )
 
   useEffect(() => {
     const canvasEl = canvasRef.current;
@@ -79,6 +99,17 @@ function App() {
       </header>
       <div style={{ display: 'flex', flexDirection: 'row' }}>
         <div>
+          {/* <div style={{ textAlign: 'left' }}>
+            {['pen' as const, 'move' as const].map(m => (
+              <span
+                key={m}
+                className={[style.button, m === mode ? style.active : ''].join(' ')}
+                onClick={() => setMode(m)}
+              >
+                {m}
+              </span>
+            ))}
+          </div> */}
           <canvas
             className={style.canvas}
             ref={canvasRef}
