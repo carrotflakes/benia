@@ -3,19 +3,22 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { CompactPicker } from 'react-color';
 import './App.css';
 import { useCursorTrackEventHandler } from './useCursorTrack';
+import { Image } from './model'
+import { TreeView } from './components/TreeView';
+import { PenPicker } from './components/PenPicker';
 
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
 
   const [trail, setTrail] = useState([] as [number, number][])
   const [image, setImage] = useState({
-    size: [300, 300],
+    size: [400, 400],
     layers: [{
       strokes: [],
     }]
   } as Image)
-  const [color, setColor] = useState('red')
-  const [lineWidth, setLineWidth] = useState(1)
+  const [color, setColor] = useState('black')
+  const [lineWidth, setLineWidth] = useState(3)
 
   const handlers = useCursorTrackEventHandler(useCallback((pos) => {
     setTrail([pos])
@@ -76,39 +79,25 @@ function App() {
       <canvas
         className='canvas'
         ref={canvasRef}
-        width="300"
-        height="300"
+        width="400"
+        height="400"
         {...handlers}
       ></canvas>
       <div>
-        <CompactPicker color={color} onChange={c => {
-          setColor(c.hex)
-        }} />
-        <input type="number" value={lineWidth} onChange={e => setLineWidth(+e.target.value)}></input>
+        <CompactPicker
+          color={color}
+          onChange={c => {
+            setColor(c.hex)
+          }}
+        />
+        <PenPicker lineWidth={lineWidth} onChange={w => setLineWidth(w)} />
+        <TreeView image={image} />
       </div>
     </div>
   );
 }
 
 export default App;
-
-type Image = {
-  size: [number, number]
-  layers: Layer[]
-}
-
-type Layer = {
-  strokes: Stroke[]
-}
-
-type Stroke = {
-  poses: Pos[]
-  close: boolean
-  color: string
-  width: number
-}
-
-type Pos = [number, number]
 
 function draw(ctx: CanvasRenderingContext2D, image: Image) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)

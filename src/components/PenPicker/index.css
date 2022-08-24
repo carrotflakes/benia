@@ -1,0 +1,15 @@
+.PenPicker {
+  background: #444;
+}
+
+.circle {
+  display: inline-block;
+  margin: 0.1em;
+  width: 2em;
+  height: 2em;
+  border-radius: 50%;
+  background: #999;
+  text-align: center;
+  user-select: none;
+  cursor: pointer;
+}
