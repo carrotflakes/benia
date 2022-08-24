@@ -1,5 +1,6 @@
+import produce from 'immer';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { SketchPicker } from 'react-color';
+import { CompactPicker } from 'react-color';
 import './App.css';
 import { useCursorTrackEventHandler } from './useCursorTrack';
 
@@ -7,8 +8,14 @@ function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
 
   const [trail, setTrail] = useState([] as [number, number][])
-  const [strokes, setStrokes] = useState([] as Stroke[])
+  const [image, setImage] = useState({
+    size: [300, 300],
+    layers: [{
+      strokes: [],
+    }]
+  } as Image)
   const [color, setColor] = useState('red')
+  const [lineWidth, setLineWidth] = useState(1)
 
   const handlers = useCursorTrackEventHandler(useCallback((pos) => {
     setTrail([pos])
@@ -27,12 +34,16 @@ function App() {
         poses: trail,
         close: false,
         color,
-        width: 1,
+        width: lineWidth,
       }
-      setStrokes(s => [...s, stroke])
+      setImage(img => {
+        return produce(img, (img) => {
+          img.layers[0].strokes.push(stroke)
+        })
+      })
     }
     setTrail([])
-  }, [trail, color]))
+  }, [color, lineWidth, trail]))
 
 
   useEffect(() => {
@@ -41,24 +52,21 @@ function App() {
     if (!ctx)
       return
 
-    let strokesToDraw = strokes
+    let imageToDraw = image
 
     if (trail.length > 2) {
-      strokesToDraw = [...strokesToDraw, {
-        poses: trail,
-        close: false,
-        color,
-        width: 1,
-      }]
+      imageToDraw = produce(imageToDraw, img => {
+        img.layers[0].strokes.push({
+          poses: trail,
+          close: false,
+          color,
+          width: lineWidth,
+        })
+      })
     }
 
-    draw(ctx, {
-      size: [ctx.canvas.width, ctx.canvas.height],
-      layers: [{
-        strokes: strokesToDraw
-      }]
-    })
-  }, [strokes, trail, color])
+    draw(ctx, imageToDraw)
+  }, [image, trail, color, lineWidth])
 
   return (
     <div className="App">
@@ -72,9 +80,12 @@ function App() {
         height="300"
         {...handlers}
       ></canvas>
-      <SketchPicker color={color} onChange={c => {
-        setColor(c.hex)
-      }} />
+      <div>
+        <CompactPicker color={color} onChange={c => {
+          setColor(c.hex)
+        }} />
+        <input type="number" value={lineWidth} onChange={e => setLineWidth(+e.target.value)}></input>
+      </div>
     </div>
   );
 }
