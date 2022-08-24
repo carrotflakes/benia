@@ -2,7 +2,7 @@ import produce from 'immer';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CompactPicker } from 'react-color';
 import style from './index.module.css';
-import { useCursorTrackEventHandler } from '../../useCursorTrack';
+import { useCursorTrackEventHandler } from '../../hooks/useCursorTrack';
 import { Image } from '../../model'
 import { TreeView } from '../../components/TreeView';
 import { PenPicker } from '../../components/PenPicker';
@@ -122,8 +122,14 @@ function draw(ctx: CanvasRenderingContext2D, image: Image) {
         ctx.lineTo(stroke.poses[i][0], stroke.poses[i][1])
       }
 
-      if (stroke.close)
+      if (stroke.close) {
         ctx.closePath()
+
+        if (stroke.fill) {
+          ctx.fillStyle = stroke.fill;
+          ctx.fill()
+        }
+      }
 
       ctx.stroke()
     }

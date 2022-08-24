@@ -126,6 +126,16 @@ const Stroke = (
     <div
       className={style.button}
       onClick={() => dispatch(img => produce(img, img => {
+        if (img.layers[path[0]].strokes[path[1]].fill) {
+          img.layers[path[0]].strokes[path[1]].fill = undefined
+        } else {
+          img.layers[path[0]].strokes[path[1]].fill = img.layers[path[0]].strokes[path[1]].color
+        }
+      }))}
+    >fill</div>
+    <div
+      className={style.button}
+      onClick={() => dispatch(img => produce(img, img => {
         img.layers[path[0]].strokes.splice(path[1], 1)
       }))}
     >delete</div>
