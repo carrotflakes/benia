@@ -73,28 +73,32 @@ function App() {
   }, [image, trail, color, lineWidth, layerI])
 
   return (
-    <div className={style.App}>
+    <div className={style.App} style={{ display: 'flex', flexDirection: 'column' }}>
       <header>
         benia - paint app
       </header>
-      <canvas
-        className={style.canvas}
-        ref={canvasRef}
-        width="400"
-        height="400"
-        {...handlers}
-      ></canvas>
-      <div>
-        <CompactPicker
-          color={color}
-          onChange={c => {
-            setColor(c.hex)
-          }}
-        />
-        <PenPicker
-          lineWidth={lineWidth}
-          onChange={w => setLineWidth(w)}
-        />
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
+        <div>
+          <canvas
+            className={style.canvas}
+            ref={canvasRef}
+            width="400"
+            height="400"
+            {...handlers}
+          ></canvas>
+          <div>
+            <CompactPicker
+              color={color}
+              onChange={c => {
+                setColor(c.hex)
+              }}
+            />
+            <PenPicker
+              lineWidth={lineWidth}
+              onChange={w => setLineWidth(w)}
+            />
+          </div>
+        </div>
         <TreeView
           image={image}
           currentLayer={[layerI, setLayerI]}

@@ -4,18 +4,22 @@ export const PenPicker = ({ lineWidth, onChange }: { lineWidth: number, onChange
   const sizes = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20]
 
   return <div className={style.PenPicker}>
-    Line width:
-    {lineWidth}
-    {
-      sizes.map(x => (
-        <div
-          key={x}
-          className={style.button}
-          onClick={() => onChange?.(x)
-          }>
-          {x}
-        </div>
-      ))
-    }
+    <div>
+      Line width:
+      {lineWidth}
+    </div>
+    <div>
+      {
+        sizes.map(x => (
+          <div
+            key={x}
+            className={style.button}
+            onClick={() => onChange?.(x)
+            }>
+            {x}
+          </div>
+        ))
+      }
+    </div>
   </div>
 }

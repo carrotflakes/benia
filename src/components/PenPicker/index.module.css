@@ -1,6 +1,5 @@
 .PenPicker {
   margin: 1em;
-  background: #444;
 }
 
 .button {
@@ -8,19 +7,7 @@
   margin: 0.1em;
   width: 2em;
   height: 2em;
-  background: #222;
-  text-align: center;
-  user-select: none;
-  cursor: pointer;
-}
-
-.circle {
-  display: inline-block;
-  margin: 0.1em;
-  width: 2em;
-  height: 2em;
-  border-radius: 50%;
-  background: #222;
+  background: #444;
   text-align: center;
   user-select: none;
   cursor: pointer;

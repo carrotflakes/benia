@@ -116,7 +116,9 @@ const Stroke = (
       background: stroke.color,
     }}>
     </div>
-    {stroke.poses.length}
+    &nbsp;
+    ({stroke.poses.length})
+    &nbsp;
     <div
       className={style.button}
       onClick={() => dispatch(img => produce(img, img => {
