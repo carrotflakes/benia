@@ -1,11 +1,11 @@
 import produce from 'immer';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CompactPicker } from 'react-color';
-import './App.css';
-import { useCursorTrackEventHandler } from './useCursorTrack';
-import { Image } from './model'
-import { TreeView } from './components/TreeView';
-import { PenPicker } from './components/PenPicker';
+import style from './index.module.css';
+import { useCursorTrackEventHandler } from '../../useCursorTrack';
+import { Image } from '../../model'
+import { TreeView } from '../../components/TreeView';
+import { PenPicker } from '../../components/PenPicker';
 
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
@@ -73,12 +73,12 @@ function App() {
   }, [image, trail, color, lineWidth, layerI])
 
   return (
-    <div className="App">
+    <div className={style.App}>
       <header>
         benia - paint app
       </header>
       <canvas
-        className='canvas'
+        className={style.canvas}
         ref={canvasRef}
         width="400"
         height="400"

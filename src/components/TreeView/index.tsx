@@ -1,7 +1,7 @@
 import produce from "immer"
 import { Dispatch, ReactNode, SetStateAction, useState } from "react"
 import * as model from "../../model"
-import './index.css'
+import style from './index.module.css'
 
 export const TreeView = (
   { image, currentLayer, dispatch }:
@@ -10,7 +10,7 @@ export const TreeView = (
       currentLayer: [number, Dispatch<SetStateAction<number>>],
       dispatch: (operation: (image: model.Image) => model.Image) => void
     }) => {
-  return <div className="TreeView">
+  return <div className={style.TreeView}>
     <div>
       size: {image.size.join(', ')}
     </div>
@@ -28,7 +28,7 @@ export const TreeView = (
         ))
       }
       <div
-        className="button"
+        className={style.button}
         onClick={() => {
           dispatch((img) => produce(img, img => {
             img.layers.push({
@@ -52,7 +52,7 @@ const Layer = (
   }) => {
   const [showStrokes, setShowStrokes] = useState(false)
 
-  return <div className="Layer">
+  return <div className={style.Layer}>
     <div>
       <div
         style={{
@@ -69,13 +69,13 @@ const Layer = (
       layer
       &nbsp;
       <div
-        className="button"
+        className={style.button}
         onClick={() => dispatch(img => produce(img, img => {
           img.layers[layerI].hide = !img.layers[layerI].hide
         }))}
       >hide</div>
       <div
-        className="button"
+        className={style.button}
         onClick={() => dispatch(img => produce(img, img => {
           img.layers.splice(layerI, 1)
         }))}
@@ -118,13 +118,13 @@ const Stroke = (
     </div>
     {stroke.poses.length}
     <div
-      className="button"
+      className={style.button}
       onClick={() => dispatch(img => produce(img, img => {
         img.layers[path[0]].strokes[path[1]].close = !img.layers[path[0]].strokes[path[1]].close
       }))}
     >close</div>
     <div
-      className="button"
+      className={style.button}
       onClick={() => dispatch(img => produce(img, img => {
         img.layers[path[0]].strokes.splice(path[1], 1)
       }))}
