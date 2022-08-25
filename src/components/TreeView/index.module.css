@@ -20,3 +20,15 @@
 .button:hover {
   opacity: 1;
 }
+
+.sortHandle:hover {
+  background: #555;
+}
+
+.layerIndicator, .strokeColor {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+}

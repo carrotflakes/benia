@@ -1,5 +1,5 @@
 import produce from 'immer';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CompactPicker } from 'react-color';
 import style from './index.module.css';
 import { useCursorTrackEventHandler } from '../../hooks/useCursorTrack';
@@ -99,7 +99,7 @@ function App() {
       </header>
       <div style={{ display: 'flex', flexDirection: 'row' }}>
         <div>
-          {/* <div style={{ textAlign: 'left' }}>
+          <div style={{ textAlign: 'left' }}>
             {['pen' as const, 'move' as const].map(m => (
               <span
                 key={m}
@@ -109,7 +109,7 @@ function App() {
                 {m}
               </span>
             ))}
-          </div> */}
+          </div>
           <canvas
             className={style.canvas}
             ref={canvasRef}
