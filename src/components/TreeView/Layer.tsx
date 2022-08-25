@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction, SyntheticEvent, useState } from "react"
 import * as model from "../../model"
 import style from './index.module.css'
 import { FoldableHeader } from './FoldableHeader'
-import { Stroke } from "./Stroke"
+import { Path } from "./Path"
 import { Hamburger } from "../icons/Hamburger"
 
 export const Layer = (
@@ -14,7 +14,7 @@ export const Layer = (
     dispatch: (operation: (image: model.Image) => model.Image) => void,
     sortHandleMouseDown: (e: SyntheticEvent<HTMLElement, MouseEvent>) => void,
   }) => {
-  const [showStrokes, setShowStrokes] = useState(false)
+  const [showPaths, setShowPaths] = useState(false)
 
   return (
     <div className={style.Layer}>
@@ -53,19 +53,19 @@ export const Layer = (
 
       <div style={{ marginLeft: '0.5em' }}>
         <FoldableHeader
-          fold={showStrokes}
-          setFold={setShowStrokes}
+          fold={showPaths}
+          setFold={setShowPaths}
         >
-          strokes ({layer.strokes.length})
+          paths ({layer.paths.length})
         </FoldableHeader>
 
         {
-          showStrokes &&
-          layer.strokes.map((stroke, i) =>
-            <Stroke
+          showPaths &&
+          layer.paths.map((path, i) =>
+            <Path
               key={i}
-              stroke={stroke}
-              path={[layerI, i]}
+              path={path}
+              pass={[layerI, i]}
               dispatch={dispatch}
             />
           )

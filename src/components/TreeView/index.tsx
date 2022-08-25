@@ -42,7 +42,7 @@ export const TreeView = (
           onClick={() => {
             dispatch((img) => produce(img, img => {
               img.layers.push({
-                strokes: [],
+                paths: [],
               })
             }))
           }}

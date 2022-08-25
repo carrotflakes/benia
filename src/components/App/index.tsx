@@ -15,7 +15,7 @@ function App() {
   const [image, setImage] = useState({
     size: [400, 400],
     layers: [{
-      strokes: [],
+      paths: [],
     }]
   } as Image)
   const [layerI, setLayerI] = useState(0)
@@ -38,7 +38,7 @@ function App() {
       },
       mouseUp: () => {
         if (trail.length > 2) {
-          const stroke =
+          const path =
           {
             poses: trail,
             close: false,
@@ -47,7 +47,7 @@ function App() {
           }
           setImage(img => {
             return produce(img, (img) => {
-              img.layers[layerI].strokes.push(stroke)
+              img.layers[layerI].paths.push(path)
             })
           })
         }
@@ -80,7 +80,7 @@ function App() {
 
     if (trail.length > 2) {
       imageToDraw = produce(imageToDraw, img => {
-        img.layers[layerI].strokes.push({
+        img.layers[layerI].paths.push({
           poses: trail,
           close: false,
           color,
@@ -147,21 +147,21 @@ function draw(ctx: CanvasRenderingContext2D, image: Image) {
 
   for (let layer of image.layers) {
     if (layer.hide) continue
-    for (let stroke of layer.strokes) {
-      ctx.lineWidth = stroke.width
-      ctx.strokeStyle = stroke.color
+    for (let path of layer.paths) {
+      ctx.lineWidth = path.width
+      ctx.strokeStyle = path.color
 
       ctx.beginPath()
 
-      for (let i = 0; i < stroke.poses.length; ++i) {
-        ctx.lineTo(stroke.poses[i][0], stroke.poses[i][1])
+      for (let i = 0; i < path.poses.length; ++i) {
+        ctx.lineTo(path.poses[i][0], path.poses[i][1])
       }
 
-      if (stroke.close) {
+      if (path.close) {
         ctx.closePath()
 
-        if (stroke.fill) {
-          ctx.fillStyle = stroke.fill;
+        if (path.fill) {
+          ctx.fillStyle = path.fill;
           ctx.fill()
         }
       }

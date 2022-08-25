@@ -5,11 +5,11 @@ export type Image = {
 }
 
 export type Layer = {
-  strokes: Stroke[]
+  paths: Path[]
   hide?: boolean
 }
 
-export type Stroke = {
+export type Path = {
   poses: Pos[]
   close: boolean
   color: string
