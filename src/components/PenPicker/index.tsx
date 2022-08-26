@@ -14,8 +14,9 @@ export const PenPicker = ({ lineWidth, onChange }: { lineWidth: number, onChange
           <div
             key={x}
             className={style.button}
-            onClick={() => onChange?.(x)
-            }>
+            onClick={() => onChange?.(x)}
+            style={{ background: lineWidth === x ? '#fa0' : '#666' }}
+          >
             {x}
           </div>
         ))
