@@ -2,7 +2,8 @@ import produce from "immer";
 import * as model from "../../model";
 import style from './index.module.css';
 import { Hamburger } from "../icons/Hamburger";
-import { SyntheticEvent } from "react";
+import { SyntheticEvent, useContext } from "react";
+import { AppContext } from "../App/context";
 
 export const Path = (
   { path, pass, dispatch, sortHandleMouseDown }: {
@@ -11,6 +12,8 @@ export const Path = (
     dispatch: (operation: (image: model.Image) => model.Image) => void;
     sortHandleMouseDown: (e: SyntheticEvent<HTMLElement, MouseEvent>) => void;
   }) => {
+  const appCtx = useContext(AppContext)
+
   return (
     <div>
       <span
@@ -25,6 +28,12 @@ export const Path = (
         className={style.strokeColor}
         style={{
           background: path.color,
+        }}
+        onClick={() => {
+          dispatch(img => produce(img, img => {
+            img.layers[pass[0]].paths[pass[1]].color = appCtx.color
+            img.layers[pass[0]].paths[pass[1]].width = appCtx.lineWidth
+          }))
         }}
       ></div>
 

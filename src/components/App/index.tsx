@@ -6,6 +6,7 @@ import { useCursorTrackEventHandler } from '../../hooks/useCursorTrack';
 import { Image, Path } from '../../model'
 import { TreeView } from '../../components/TreeView';
 import { PenPicker } from '../../components/PenPicker';
+import { AppContext } from './context';
 
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
@@ -33,7 +34,7 @@ function App() {
       },
       mouseUp: () => {
         if (trail.length > 2) {
-          const path = new Path(trail,color,lineWidth)
+          const path = new Path(trail, color, lineWidth)
           setImage(img => {
             return produce(img, (img) => {
               img.getLayerById(layerI)?.paths.push(path)
@@ -70,7 +71,7 @@ function App() {
 
     if (trail.length > 2) {
       imageToDraw = produce(imageToDraw, img => {
-        img.getLayerById(layerI)?.paths.push(new Path(trail,color,lineWidth))
+        img.getLayerById(layerI)?.paths.push(new Path(trail, color, lineWidth))
       })
     }
 
@@ -80,51 +81,53 @@ function App() {
   const dispatch = useCallback((op: (image: Image) => Image) => setImage(i => op(i)), [])
 
   return (
-    <div className={style.App}>
-      <header>
-        benia - paint app
-      </header>
-      <div className={style.center}>
-        <div>
-          <div style={{ textAlign: 'left' }}>
-            {['pen' as const, 'move' as const].map(m => (
-              <span
-                key={m}
-                className={[style.button, m === mode ? style.active : ''].join(' ')}
-                onClick={() => setMode(m)}
-              >
-                {m}
-              </span>
-            ))}
-          </div>
-          <canvas
-            className={style.canvas}
-            ref={canvasRef}
-            width="400"
-            height="400"
-            {...handlers}
-          ></canvas>
+    <AppContext.Provider value={{ color, setColor, lineWidth, setLineWidth }}>
+      <div className={style.App}>
+        <header>
+          benia - paint app
+        </header>
+        <div className={style.center}>
           <div>
-            <CompactPicker
-              color={color}
-              onChange={c => {
-                setColor(c.hex)
-              }}
-            />
-            <PenPicker
-              lineWidth={lineWidth}
-              onChange={w => setLineWidth(w)}
-            />
+            <div style={{ textAlign: 'left' }}>
+              {['pen' as const, 'move' as const].map(m => (
+                <span
+                  key={m}
+                  className={[style.button, m === mode ? style.active : ''].join(' ')}
+                  onClick={() => setMode(m)}
+                >
+                  {m}
+                </span>
+              ))}
+            </div>
+            <canvas
+              className={style.canvas}
+              ref={canvasRef}
+              width="400"
+              height="400"
+              {...handlers}
+            ></canvas>
+            <div>
+              <CompactPicker
+                color={color}
+                onChange={c => {
+                  setColor(c.hex)
+                }}
+              />
+              <PenPicker
+                lineWidth={lineWidth}
+                onChange={w => setLineWidth(w)}
+              />
+            </div>
           </div>
+          <TreeView
+            image={image}
+            currentLayer={[layerI, setLayerI]}
+            dispatch={dispatch}
+          />
         </div>
-        <TreeView
-          image={image}
-          currentLayer={[layerI, setLayerI]}
-          dispatch={dispatch}
-        />
       </div>
-    </div>
-  );
+    </AppContext.Provider>
+  )
 }
 
 export default App;
