@@ -73,6 +73,19 @@ export const Layer = (
             img.layers.splice(layerI, 1)
           }))}
         >delete</div>
+        <div
+          className={style.button}
+          onClick={() => dispatch(img => produce(img, img => {
+            img.layers[layerI].alpha = img.layers[layerI].alpha === 1.0 ? 0.5 : 1.0
+          }))}
+        >{layer.alpha}</div>
+        <div
+          className={style.button}
+          onClick={() => dispatch(img => produce(img, img => {
+            const i = model.compositeModes.indexOf(img.layers[layerI].compositeMode)
+            img.layers[layerI].compositeMode = model.compositeModes[(i + 1) % model.compositeModes.length]
+          }))}
+        >{layer.compositeMode}</div>
       </div>
 
       <div style={{ marginLeft: '0.5em' }}>
@@ -124,6 +137,7 @@ const LayerName = ({ name, setName }: { name: string, setName: (str: string) => 
             value={name}
             onChange={e => setName(e.target.value)}
             onBlur={() => setEdit(false)}
+            autoFocus={true}
           />
           :
           <span

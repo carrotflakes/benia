@@ -7,6 +7,7 @@ import { Image, Path } from '../../model'
 import { TreeView } from '../../components/TreeView';
 import { PenPicker } from '../../components/PenPicker';
 import { AppContext } from './context';
+import { draw } from './draw';
 
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
@@ -131,38 +132,6 @@ function App() {
 }
 
 export default App;
-
-function draw(ctx: CanvasRenderingContext2D, image: Image) {
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
-
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-
-  for (let layer of image.layers) {
-    if (layer.hide) continue
-    for (let path of layer.paths) {
-      ctx.lineWidth = path.width
-      ctx.strokeStyle = path.color
-
-      ctx.beginPath()
-
-      for (let i = 0; i < path.poses.length; ++i) {
-        ctx.lineTo(path.poses[i][0], path.poses[i][1])
-      }
-
-      if (path.close) {
-        ctx.closePath()
-
-        if (path.fill) {
-          ctx.fillStyle = path.fill;
-          ctx.fill()
-        }
-      }
-
-      ctx.stroke()
-    }
-  }
-}
 
 function distance(a: [number, number], b: [number, number]) {
   return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2);

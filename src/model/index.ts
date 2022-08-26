@@ -1,7 +1,7 @@
 import { immerable } from "immer"
 
 export class Image {
-  [ immerable ] = true
+  [immerable] = true
   size: [number, number]
   layers: Layer[] = [new Layer()]
 
@@ -15,15 +15,17 @@ export class Image {
 
   getLayerIndexById(id: Symbol) {
     const i = this.layers.findIndex(l => l.id === id)
-    return i === -1?null: i
+    return i === -1 ? null : i
   }
 }
 
 export class Layer {
-  [ immerable ] = true
+  [immerable] = true
   id: Symbol = Symbol('layer')
   name: string = ''
   paths: Path[] = []
+  compositeMode: CompositeMode = 'source-over'
+  alpha: number = 1.0
   hide?: boolean
 
   clone() {
@@ -35,7 +37,7 @@ export class Layer {
 }
 
 export class Path {
-  [ immerable ] = true
+  [immerable] = true
   id: Symbol = Symbol('path')
   poses: Pos[] = []
   close: boolean = false
@@ -51,3 +53,15 @@ export class Path {
 }
 
 export type Pos = [number, number]
+
+export type CompositeMode = GlobalCompositeOperation
+export const compositeModes: CompositeMode[] = [
+  'source-over',
+  'lighter',
+  'darken',
+  'multiply',
+  'screen',
+  'overlay',
+  'lighten',
+  // TODO
+]
