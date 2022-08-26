@@ -3,7 +3,7 @@ import { SyntheticEvent, useCallback, useEffect, useRef } from "react"
 export const useCursorTrackEventHandler = (
   mouseDown: (pos: [number, number]) => void,
   mouseMove: (pos: [number, number]) => void,
-  mouseUp: () => void,
+  mouseUp: (e: MouseEvent) => void,
   targetRef: ReturnType<typeof useRef<HTMLElement>>,
 ) => {
   useEffect(() => {

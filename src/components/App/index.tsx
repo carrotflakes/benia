@@ -12,8 +12,11 @@ import { draw } from './draw';
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
 
-  const [mode, setMode] = useState('pen' as 'pen' | 'move')
+  const [mode, setMode] = useState('pen' as 'pen' | 'layer shift')
   const [trail, setTrail] = useState([] as [number, number][])
+  const [dragStart, setDragStart] = useState([0, 0])
+  const [dragEnd, setDragEnd] = useState([0, 0])
+  const [dragging, setDragging] = useState(false)
   const [image, setImage] = useState(new Image([600, 600]))
   const [layerI, setLayerI] = useState(image.layers[0].id)
   const [color, setColor] = useState('black')
@@ -33,7 +36,7 @@ function App() {
           }
         }
       },
-      mouseUp: () => {
+      mouseUp: (e: MouseEvent) => {
         if (trail.length > 2) {
           const path = new Path(trail, color, lineWidth)
           setImage(img => {
@@ -43,17 +46,38 @@ function App() {
           })
         }
         setTrail([])
+        e.preventDefault()
       },
     },
-    move: {
+    'layer shift': {
       mouseDown: (pos: [number, number]) => {
+        setDragStart(pos)
+        setDragging(true)
       },
       mouseMove: (pos: [number, number]) => {
+        setDragEnd(pos)
       },
-      mouseUp: () => {
+      mouseUp: (e: MouseEvent) => {
+        if (dragging) {
+          setImage(img => {
+            return produce(img, (img) => {
+              const layer = img.getLayerById(layerI)
+              if (!layer) return
+              layer.paths = layer.paths.map(p => {
+                p.poses = p.poses.map(p => [
+                  p[0] + dragEnd[0] - dragStart[0],
+                  p[1] + dragEnd[1] - dragStart[1],
+                ])
+                return p
+              })
+            })
+          })
+          setDragging(false)
+        }
+        e.preventDefault()
       },
     }
-  }[mode]), [color, layerI, lineWidth, mode, trail])
+  }[mode]), [color, dragEnd, dragStart, dragging, layerI, lineWidth, mode, trail])
 
   const handlers = useCursorTrackEventHandler(
     modeHandlers.mouseDown,
@@ -75,9 +99,22 @@ function App() {
         img.getLayerById(layerI)?.paths.push(new Path(trail, color, lineWidth))
       })
     }
+    if (dragging) {
+      imageToDraw = produce(imageToDraw, (img) => {
+        const layer = img.getLayerById(layerI)
+        if (!layer) return
+        layer.paths = layer.paths.map(p => {
+          p.poses = p.poses.map(p => [
+            p[0] + dragEnd[0] - dragStart[0],
+            p[1] + dragEnd[1] - dragStart[1],
+          ])
+          return p
+        })
+      })
+    }
 
     draw(ctx, imageToDraw)
-  }, [image, trail, color, lineWidth, layerI])
+  }, [image, trail, color, lineWidth, layerI, dragging, dragEnd, dragStart])
 
   const dispatch = useCallback((op: (image: Image) => Image) => setImage(i => op(i)), [])
 
@@ -92,7 +129,7 @@ function App() {
         <div className={style.center}>
           <div>
             <div style={{ textAlign: 'left' }}>
-              {['pen' as const, 'move' as const].map(m => (
+              {['pen' as const, 'layer shift' as const].map(m => (
                 <span
                   key={m}
                   className={[style.button, m === mode ? style.active : ''].join(' ')}
