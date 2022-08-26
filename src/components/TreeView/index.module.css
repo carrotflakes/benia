@@ -1,9 +1,6 @@
 .TreeView {
   text-align: left;
-}
-
-.Layer {
-  padding-left: 0.5em;
+  overflow-y: auto;
 }
 
 .button {

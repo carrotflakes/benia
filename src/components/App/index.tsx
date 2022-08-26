@@ -96,11 +96,11 @@ function App() {
   const dispatch = useCallback((op: (image: Image) => Image) => setImage(i => op(i)), [])
 
   return (
-    <div className={style.App} style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className={style.App}>
       <header>
         benia - paint app
       </header>
-      <div style={{ display: 'flex', flexDirection: 'row' }}>
+      <div className={style.center}>
         <div>
           <div style={{ textAlign: 'left' }}>
             {['pen' as const, 'move' as const].map(m => (
