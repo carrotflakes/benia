@@ -18,7 +18,6 @@ export const Path = (
     <div>
       <span
         className={style.sortHandle}
-        style={{ padding: 2, cursor: 'pointer' }}
         onMouseDown={sortHandleMouseDown}
       >
         <Hamburger color="#aaa" />

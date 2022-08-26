@@ -18,11 +18,22 @@
   opacity: 1;
 }
 
+.sortHandle {
+  padding: 0.1rem 0.4rem;
+  cursor: pointer;
+}
+
 .sortHandle:hover {
   background: #555;
 }
 
-.layerIndicator, .strokeColor {
+.editTarget {
+  display: inline-block;
+  cursor: pointer;
+  user-select: none;
+}
+
+.strokeColor {
   display: inline-block;
   width: 0.7rem;
   height: 0.7rem;

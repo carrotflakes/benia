@@ -41,18 +41,19 @@ export const Layer = (
       <div>
         <span
           className={style.sortHandle}
-          style={{ padding: 2, cursor: 'pointer' }}
           onMouseDown={sortHandleMouseDown}
         >
           <Hamburger color="#aaa" />
         </span>
 
         <div
-          className={style.layerIndicator}
+          className={style.editTarget}
           style={{
-            background: currentLayer[0] === layer.id ? '#fa0' : '#666',
+            color: currentLayer[0] === layer.id ? '#fa0' : '#666',
           }}
-          onClick={() => currentLayer[1](layer.id)}>
+          onClick={() => currentLayer[1](layer.id)}
+        >
+          🖊
         </div>
         &nbsp;
         <LayerName name={layer.name} setName={(s) => {
