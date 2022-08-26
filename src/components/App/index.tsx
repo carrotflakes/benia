@@ -14,7 +14,7 @@ function App() {
 
   const [mode, setMode] = useState('pen' as 'pen' | 'move')
   const [trail, setTrail] = useState([] as [number, number][])
-  const [image, setImage] = useState(new Image([400, 400]))
+  const [image, setImage] = useState(new Image([600, 600]))
   const [layerI, setLayerI] = useState(image.layers[0].id)
   const [color, setColor] = useState('black')
   const [lineWidth, setLineWidth] = useState(3)
@@ -105,8 +105,8 @@ function App() {
             <canvas
               className={style.canvas}
               ref={canvasRef}
-              width="400"
-              height="400"
+              width={image.size[0]}
+              height={image.size[1]}
               {...handlers}
             ></canvas>
             <div>
