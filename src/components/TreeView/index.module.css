@@ -24,8 +24,8 @@
 
 .layerIndicator, .strokeColor {
   display: inline-block;
-  width: 10px;
-  height: 10px;
+  width: 0.7rem;
+  height: 0.7rem;
   border-radius: 50%;
   cursor: pointer;
 }

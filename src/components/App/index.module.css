@@ -20,7 +20,7 @@
 
 .canvas {
   margin: 1em;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25);
   
   background: linear-gradient(45deg, #777 25%, transparent 25%, transparent 75%, #777 75%),
               linear-gradient(45deg, #777 25%, transparent 25%, transparent 75%, #777 75%),
@@ -31,8 +31,8 @@
 
 .button {
   display: inline-block;
-  margin: 0.1em;
-  padding: 0.1em 0.3em;
+  margin: 0.1rem;
+  padding: 0.1rem 0.3rem;
   background: #444;
   text-align: center;
   user-select: none;
