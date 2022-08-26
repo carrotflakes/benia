@@ -22,6 +22,7 @@ export class Image {
 export class Layer {
   [ immerable ] = true
   id: Symbol = Symbol('layer')
+  name: string = ''
   paths: Path[] = []
   hide?: boolean
 

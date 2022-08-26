@@ -55,7 +55,11 @@ export const Layer = (
           onClick={() => currentLayer[1](layer.id)}>
         </div>
         &nbsp;
-        layer
+        <LayerName name={layer.name} setName={(s) => {
+          dispatch(img => produce(img, img => {
+            img.layers[layerI].name = s
+          }))
+        }} />
         &nbsp;
         <div
           className={style.button}
@@ -106,4 +110,28 @@ export const Layer = (
         </div>
       </div>
     </div>)
+}
+
+const LayerName = ({ name, setName }: { name: string, setName: (str: string) => void }) => {
+  const [edit, setEdit] = useState(false)
+
+  return (
+    <div style={{ display: 'inline-block' }}>
+      {
+        edit ?
+          <input
+            type="text"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            onBlur={() => setEdit(false)}
+          />
+          :
+          <span
+            style={{ color: name ? '#eee' : '#777' }}
+            onClick={() => setEdit(true)}>
+            {name || 'layer'}
+          </span>
+      }
+    </div>
+  )
 }
