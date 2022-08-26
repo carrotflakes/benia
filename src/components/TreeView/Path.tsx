@@ -42,23 +42,23 @@ export const Path = (
       <div
         className={style.button}
         onClick={() => dispatch(img => produce(img, img => {
-          img.layers[pass[0]].paths[pass[1]].close = !img.layers[pass[0]].paths[pass[1]].close;
+          img.layers[pass[0]].paths[pass[1]].close = !img.layers[pass[0]].paths[pass[1]].close
         }))}
       >close</div>
       <div
         className={style.button}
         onClick={() => dispatch(img => produce(img, img => {
           if (img.layers[pass[0]].paths[pass[1]].fill) {
-            img.layers[pass[0]].paths[pass[1]].fill = undefined;
+            img.layers[pass[0]].paths[pass[1]].fill = undefined
           } else {
-            img.layers[pass[0]].paths[pass[1]].fill = img.layers[pass[0]].paths[pass[1]].color;
+            img.layers[pass[0]].paths[pass[1]].fill = appCtx.color
           }
         }))}
       >fill</div>
       <div
         className={style.button}
         onClick={() => dispatch(img => produce(img, img => {
-          img.layers[pass[0]].paths.splice(pass[1], 1);
+          img.layers[pass[0]].paths.splice(pass[1], 1)
         }))}
       >delete</div>
     </div>
