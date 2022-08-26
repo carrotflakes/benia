@@ -9,7 +9,7 @@ export const TreeView = (
   { image, currentLayer, dispatch }:
     {
       image: model.Image,
-      currentLayer: [number, Dispatch<SetStateAction<number>>],
+      currentLayer: [Symbol, Dispatch<SetStateAction<Symbol>>],
       dispatch: (operation: (image: model.Image) => model.Image) => void
     }) => {
   const layersContainer = useRef(null! as HTMLDivElement)
@@ -52,8 +52,8 @@ export const TreeView = (
                 }}
               >
                 <Layer
-                  layerI={i}
                   layer={layer}
+                  layerI={i}
                   currentLayer={currentLayer}
                   dispatch={dispatch}
                   sortHandleMouseDown={dnd.genOnMouseDown(i)}
@@ -66,9 +66,7 @@ export const TreeView = (
           className={style.button}
           onClick={() => {
             dispatch((img) => produce(img, img => {
-              img.layers.push({
-                paths: [],
-              })
+              img.layers.push(new model.Layer())
             }))
           }}
         >

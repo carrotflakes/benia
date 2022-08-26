@@ -9,9 +9,9 @@ import { useDnd } from "../../hooks/useDnd"
 
 export const Layer = (
   { layer, layerI, currentLayer, dispatch, sortHandleMouseDown }: {
-    layerI: number,
     layer: model.Layer,
-    currentLayer: [number, Dispatch<SetStateAction<number>>],
+    layerI: number,
+    currentLayer: [Symbol, Dispatch<SetStateAction<Symbol>>],
     dispatch: (operation: (image: model.Image) => model.Image) => void,
     sortHandleMouseDown: (e: SyntheticEvent<HTMLElement, MouseEvent>) => void,
   }) => {
@@ -50,9 +50,9 @@ export const Layer = (
         <div
           className={style.layerIndicator}
           style={{
-            background: currentLayer[0] === layerI ? '#fa0' : '#666',
+            background: currentLayer[0] === layer.id ? '#fa0' : '#666',
           }}
-          onClick={() => currentLayer[1](layerI)}>
+          onClick={() => currentLayer[1](layer.id)}>
         </div>
         &nbsp;
         layer

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CompactPicker } from 'react-color';
 import style from './index.module.css';
 import { useCursorTrackEventHandler } from '../../hooks/useCursorTrack';
-import { Image } from '../../model'
+import { Image, Path } from '../../model'
 import { TreeView } from '../../components/TreeView';
 import { PenPicker } from '../../components/PenPicker';
 
@@ -12,13 +12,8 @@ function App() {
 
   const [mode, setMode] = useState('pen' as 'pen' | 'move')
   const [trail, setTrail] = useState([] as [number, number][])
-  const [image, setImage] = useState({
-    size: [400, 400],
-    layers: [{
-      paths: [],
-    }]
-  } as Image)
-  const [layerI, setLayerI] = useState(0)
+  const [image, setImage] = useState(new Image([400, 400]))
+  const [layerI, setLayerI] = useState(image.layers[0].id)
   const [color, setColor] = useState('black')
   const [lineWidth, setLineWidth] = useState(3)
 
@@ -38,16 +33,10 @@ function App() {
       },
       mouseUp: () => {
         if (trail.length > 2) {
-          const path =
-          {
-            poses: trail,
-            close: false,
-            color,
-            width: lineWidth,
-          }
+          const path = new Path(trail,color,lineWidth)
           setImage(img => {
             return produce(img, (img) => {
-              img.layers[layerI].paths.push(path)
+              img.getLayerById(layerI)?.paths.push(path)
             })
           })
         }
@@ -81,12 +70,7 @@ function App() {
 
     if (trail.length > 2) {
       imageToDraw = produce(imageToDraw, img => {
-        img.layers[layerI].paths.push({
-          poses: trail,
-          close: false,
-          color,
-          width: lineWidth,
-        })
+        img.getLayerById(layerI)?.paths.push(new Path(trail,color,lineWidth))
       })
     }
 
@@ -146,6 +130,9 @@ function App() {
 export default App;
 
 function draw(ctx: CanvasRenderingContext2D, image: Image) {
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
   for (let layer of image.layers) {
