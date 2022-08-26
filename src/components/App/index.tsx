@@ -85,7 +85,9 @@ function App() {
     <AppContext.Provider value={{ color, setColor, lineWidth, setLineWidth }}>
       <div className={style.App}>
         <header>
-          benia - paint app
+          <span className={style.title}>
+            benia - paint app
+          </span>
         </header>
         <div className={style.center}>
           <div>
