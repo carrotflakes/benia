@@ -1,9 +1,11 @@
-import { SyntheticEvent, useCallback, useEffect } from "react"
+import { SyntheticEvent, useCallback, useEffect, useRef } from "react"
 
 export const useCursorTrackEventHandler = (
   mouseDown: (pos: [number, number]) => void,
   mouseMove: (pos: [number, number]) => void,
-  mouseUp: () => void) => {
+  mouseUp: () => void,
+  targetRef: ReturnType<typeof useRef<HTMLElement>>,
+) => {
   useEffect(() => {
     window.addEventListener('mouseup', mouseUp)
     return () => {
@@ -12,24 +14,24 @@ export const useCursorTrackEventHandler = (
   }, [mouseUp])
 
   const onMouseDown = useCallback((e: SyntheticEvent<HTMLElement, MouseEvent>) => {
-    if (!(e.target instanceof HTMLElement))
+    if (!targetRef.current)
       return
 
-    const rect = e.target.getBoundingClientRect()
+    const rect = targetRef.current.getBoundingClientRect()
     mouseDown([e.nativeEvent.clientX - rect.left, e.nativeEvent.clientY - rect.top])
 
     e.stopPropagation()
-  }, [mouseDown])
+  }, [mouseDown, targetRef])
 
   const onMouseMove = useCallback((e: SyntheticEvent<HTMLElement, MouseEvent>) => {
-    if (!(e.target instanceof HTMLElement))
+    if (!targetRef.current)
       return
 
-    const rect = e.target.getBoundingClientRect()
+    const rect = targetRef.current.getBoundingClientRect()
     mouseMove([e.nativeEvent.clientX - rect.left, e.nativeEvent.clientY - rect.top])
 
     e.stopPropagation()
-  }, [mouseMove])
+  }, [mouseMove, targetRef])
 
   return {
     onMouseDown,

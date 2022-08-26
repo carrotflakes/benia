@@ -2,19 +2,21 @@ import produce from "immer";
 import * as model from "../../model";
 import style from './index.module.css';
 import { Hamburger } from "../icons/Hamburger";
+import { SyntheticEvent } from "react";
 
 export const Path = (
-  { path, pass, dispatch }: {
+  { path, pass, dispatch, sortHandleMouseDown }: {
     path: model.Path;
     pass: [number, number];
     dispatch: (operation: (image: model.Image) => model.Image) => void;
+    sortHandleMouseDown: (e: SyntheticEvent<HTMLElement, MouseEvent>) => void;
   }) => {
   return (
     <div>
       <span
         className={style.sortHandle}
         style={{ padding: 2, cursor: 'pointer' }}
-        onMouseDown={e => e.preventDefault()}
+        onMouseDown={sortHandleMouseDown}
       >
         <Hamburger color="#aaa" />
       </span>

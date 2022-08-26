@@ -1,5 +1,5 @@
 import produce from 'immer';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CompactPicker } from 'react-color';
 import style from './index.module.css';
 import { useCursorTrackEventHandler } from '../../hooks/useCursorTrack';
@@ -68,6 +68,7 @@ function App() {
     modeHandlers.mouseDown,
     modeHandlers.mouseMove,
     modeHandlers.mouseUp,
+    canvasRef,
   )
 
   useEffect(() => {
@@ -91,6 +92,8 @@ function App() {
 
     draw(ctx, imageToDraw)
   }, [image, trail, color, lineWidth, layerI])
+
+  const dispatch = useCallback((op: (image: Image) => Image) => setImage(i => op(i)), [])
 
   return (
     <div className={style.App} style={{ display: 'flex', flexDirection: 'column' }}>
@@ -133,7 +136,7 @@ function App() {
         <TreeView
           image={image}
           currentLayer={[layerI, setLayerI]}
-          dispatch={op => setImage(i => op(i))}
+          dispatch={dispatch}
         />
       </div>
     </div>
