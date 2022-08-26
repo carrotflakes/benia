@@ -79,13 +79,13 @@ export const Layer = (
             img.layers[layerI].alpha = img.layers[layerI].alpha === 1.0 ? 0.5 : 1.0
           }))}
         >{layer.alpha}</div>
-        <div
-          className={style.button}
-          onClick={() => dispatch(img => produce(img, img => {
-            const i = model.compositeModes.indexOf(img.layers[layerI].compositeMode)
-            img.layers[layerI].compositeMode = model.compositeModes[(i + 1) % model.compositeModes.length]
-          }))}
-        >{layer.compositeMode}</div>
+        <CompositeMode
+          compositeMode={layer.compositeMode}
+          setCompositeMode={(cm => {
+            dispatch(img => produce(img, img => {
+              img.layers[layerI].compositeMode = cm
+            }))
+          })} />
       </div>
 
       <div style={{ marginLeft: '0.5em' }}>
@@ -147,5 +147,33 @@ const LayerName = ({ name, setName }: { name: string, setName: (str: string) => 
           </span>
       }
     </div>
+  )
+}
+
+const CompositeMode = (
+  { compositeMode, setCompositeMode }: {
+    compositeMode: model.CompositeMode,
+    setCompositeMode: (str: model.CompositeMode) => void,
+  }) => {
+  return (
+    <select
+      size={1}
+      defaultValue={compositeMode}
+      onChange={e => {
+        if (e.target instanceof HTMLSelectElement && model.compositeModes.includes(e.target.value as model.CompositeMode))
+          setCompositeMode(e.target.value as model.CompositeMode)
+      }}
+    >
+      {
+        model.compositeModes.map(cm =>
+          <option
+            key={cm}
+            value={cm}
+          >
+            {cm}
+          </option>
+        )
+      }
+    </select>
   )
 }
