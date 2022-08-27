@@ -1,4 +1,5 @@
 .PenPicker {
+  display: inline-block;
   margin: 1rem;
 }
 

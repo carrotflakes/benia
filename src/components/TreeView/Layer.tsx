@@ -53,7 +53,9 @@ export const Layer = (
           }}
           onClick={() => currentLayer[1](layer.id)}
         >
-          🖊
+          <span className="material-symbols-outlined">
+            edit
+          </span>
         </div>
         &nbsp;
         <LayerName name={layer.name} setName={(s) => {
@@ -62,18 +64,22 @@ export const Layer = (
           }))
         }} />
         &nbsp;
-        <div
-          className={style.button}
+        <span
+          className={"material-symbols-outlined " + style.iconButton}
           onClick={() => dispatch(img => produce(img, img => {
             img.layers[layerI].hide = !img.layers[layerI].hide
           }))}
-        >hide</div>
-        <div
-          className={style.button}
+        >
+          {layer.hide ? 'visibility_off' : 'visibility'}
+        </span>
+        <span
+          className={"material-symbols-outlined " + style.iconButton}
           onClick={() => dispatch(img => produce(img, img => {
             img.layers.splice(layerI, 1)
           }))}
-        >delete</div>
+        >
+          delete
+        </span>
         <div
           className={style.button}
           onClick={() => dispatch(img => produce(img, img => {

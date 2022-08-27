@@ -40,3 +40,14 @@
   border-radius: 50%;
   cursor: pointer;
 }
+
+.iconButton {
+  padding: 1px;
+  user-select: none;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.iconButton:hover {
+  color: #eee;
+}
