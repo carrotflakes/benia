@@ -25,6 +25,30 @@
   overflow-y: auto;
 }
 
+.center > *:nth-child(1) {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.center > *:nth-child(2) {
+  flex: 1 1 auto;
+}
+
+.center > *:nth-child(1) > *:nth-child(1) {
+  flex: 0 0 auto;
+}
+
+.center > *:nth-child(1) > *:nth-child(2) {
+  flex: 0 1 auto;
+  overflow: auto;
+}
+
+.center > *:nth-child(1) > *:nth-child(3) {
+  flex: 0 0 auto;
+}
+
 .canvas {
   margin: 1em;
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25);

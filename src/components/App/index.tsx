@@ -139,13 +139,15 @@ function App() {
                 </span>
               ))}
             </div>
-            <canvas
-              className={style.canvas}
-              ref={canvasRef}
-              width={image.size[0]}
-              height={image.size[1]}
-              {...handlers}
-            ></canvas>
+            <div>
+              <canvas
+                className={style.canvas}
+                ref={canvasRef}
+                width={image.size[0]}
+                height={image.size[1]}
+                {...handlers}
+              ></canvas>
+            </div>
             <div>
               <CompactPicker
                 color={color}
