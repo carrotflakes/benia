@@ -20,7 +20,7 @@ export const useCursorTrackEventHandler = (
     const rect = targetRef.current.getBoundingClientRect()
     mouseDown([e.nativeEvent.clientX - rect.left, e.nativeEvent.clientY - rect.top])
 
-    e.stopPropagation()
+    e.preventDefault()
   }, [mouseDown, targetRef])
 
   const onMouseMove = useCallback((e: SyntheticEvent<HTMLElement, MouseEvent>) => {
@@ -30,7 +30,7 @@ export const useCursorTrackEventHandler = (
     const rect = targetRef.current.getBoundingClientRect()
     mouseMove([e.nativeEvent.clientX - rect.left, e.nativeEvent.clientY - rect.top])
 
-    e.stopPropagation()
+    e.preventDefault()
   }, [mouseMove, targetRef])
 
   return {

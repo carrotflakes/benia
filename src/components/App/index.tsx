@@ -120,7 +120,10 @@ function App() {
 
   return (
     <AppContext.Provider value={{ color, setColor, lineWidth, setLineWidth }}>
-      <div className={style.App}>
+      <div
+        className={style.App}
+        onMouseMove={handlers.onMouseMove}
+      >
         <header>
           <span className={style.title}>
             benia - paint app
@@ -145,7 +148,7 @@ function App() {
                 ref={canvasRef}
                 width={image.size[0]}
                 height={image.size[1]}
-                {...handlers}
+                onMouseDown={handlers.onMouseDown}
               ></canvas>
             </div>
             <div>
