@@ -12,7 +12,7 @@ import { draw } from './draw';
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
 
-  const [mode, setMode] = useState('pen' as 'pen' | 'layer shift')
+  const [mode, setMode] = useState('pen' as Mode)
   const [trail, setTrail] = useState([] as [number, number][])
   const [dragStart, setDragStart] = useState([0, 0])
   const [dragEnd, setDragEnd] = useState([0, 0])
@@ -94,27 +94,33 @@ function App() {
 
     let imageToDraw = image
 
-    if (trail.length > 2) {
-      imageToDraw = produce(imageToDraw, img => {
-        img.getLayerById(layerI)?.paths.push(new Path(trail, color, lineWidth))
-      })
-    }
-    if (dragging) {
-      imageToDraw = produce(imageToDraw, (img) => {
-        const layer = img.getLayerById(layerI)
-        if (!layer) return
-        layer.paths = layer.paths.map(p => {
-          p.poses = p.poses.map(p => [
-            p[0] + dragEnd[0] - dragStart[0],
-            p[1] + dragEnd[1] - dragStart[1],
-          ])
-          return p
-        })
-      })
+    switch (mode) {
+      case 'pen':
+        if (trail.length > 2) {
+          imageToDraw = produce(imageToDraw, img => {
+            img.getLayerById(layerI)?.paths.push(new Path(trail, color, lineWidth))
+          })
+        }
+        break
+      case 'layer shift':
+        if (dragging) {
+          imageToDraw = produce(imageToDraw, (img) => {
+            const layer = img.getLayerById(layerI)
+            if (!layer) return
+            layer.paths = layer.paths.map(p => {
+              p.poses = p.poses.map(p => [
+                p[0] + dragEnd[0] - dragStart[0],
+                p[1] + dragEnd[1] - dragStart[1],
+              ])
+              return p
+            })
+          })
+        }
+        break
     }
 
     draw(ctx, imageToDraw)
-  }, [image, trail, color, lineWidth, layerI, dragging, dragEnd, dragStart])
+  }, [image, trail, color, lineWidth, layerI, dragging, dragEnd, dragStart, mode])
 
   const dispatch = useCallback((op: (image: Image) => Image) => setImage(i => op(i)), [])
 
@@ -131,17 +137,7 @@ function App() {
         </header>
         <div className={style.center}>
           <div>
-            <div style={{ textAlign: 'left' }}>
-              {['pen' as const, 'layer shift' as const].map(m => (
-                <span
-                  key={m}
-                  className={[style.button, m === mode ? style.active : ''].join(' ')}
-                  onClick={() => setMode(m)}
-                >
-                  {m}
-                </span>
-              ))}
-            </div>
+            <Tools {...{ mode, setMode }} />
             <div>
               <canvas
                 className={style.canvas}
@@ -176,6 +172,24 @@ function App() {
 }
 
 export default App;
+
+const modes = ['pen', 'layer shift'] as const
+
+type Mode = typeof modes[number]
+
+const Tools = ({ mode, setMode }: { mode: Mode, setMode: (mode: Mode) => void }) => {
+  return <div style={{ textAlign: 'left' }}>
+    {modes.map(m => (
+      <span
+        key={m}
+        className={[style.button, m === mode ? style.active : ''].join(' ')}
+        onClick={() => setMode(m)}
+      >
+        {m}
+      </span>
+    ))}
+  </div>;
+}
 
 function distance(a: [number, number], b: [number, number]) {
   return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2);
