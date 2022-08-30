@@ -1,15 +1,14 @@
 import produce from "immer"
-import { Dispatch, SetStateAction, useCallback, useRef, } from "react"
+import { useCallback, useRef } from "react"
+import { useDnd } from "../../hooks/useDnd"
 import * as model from "../../model"
 import style from './index.module.css'
 import { Layer } from "./Layer"
-import { useDnd } from "../../hooks/useDnd"
 
 export const TreeView = (
-  { image, currentLayer, dispatch }:
+  { image, dispatch }:
     {
       image: model.Image,
-      currentLayer: [Symbol, Dispatch<SetStateAction<Symbol>>],
       dispatch: (operation: (image: model.Image) => model.Image) => void
     }) => {
   const layersContainer = useRef(null! as HTMLDivElement)
@@ -54,7 +53,6 @@ export const TreeView = (
                 <Layer
                   layer={layer}
                   layerI={i}
-                  currentLayer={currentLayer}
                   dispatch={dispatch}
                   sortHandleMouseDown={dnd.genOnMouseDown(i)}
                 />

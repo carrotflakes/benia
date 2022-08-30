@@ -9,11 +9,11 @@ export class Image {
     this.size = size
   }
 
-  getLayerById(id: Symbol) {
+  getLayerById(id: symbol) {
     return this.layers.find(l => l.id === id)
   }
 
-  getLayerIndexById(id: Symbol) {
+  getLayerIndexById(id: symbol) {
     const i = this.layers.findIndex(l => l.id === id)
     return i === -1 ? null : i
   }
@@ -21,7 +21,7 @@ export class Image {
 
 export class Layer {
   [immerable] = true
-  id: Symbol = Symbol('layer')
+  id: symbol = Symbol('layer')
   name: string = ''
   paths: Path[] = []
   compositeMode: CompositeMode = 'source-over'
@@ -38,7 +38,7 @@ export class Layer {
 
 export class Path {
   [immerable] = true
-  id: Symbol = Symbol('path')
+  id: symbol = Symbol('path')
   poses: Pos[] = []
   close: boolean = false
   color: string = '#000'

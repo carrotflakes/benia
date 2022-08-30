@@ -10,3 +10,4 @@
 - vector tools
 - raster support
 - serialize/deserialize
+- shape

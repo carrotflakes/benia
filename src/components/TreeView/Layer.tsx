@@ -1,20 +1,21 @@
 import produce from "immer"
-import { Dispatch, SetStateAction, SyntheticEvent, useCallback, useRef, useState } from "react"
-import * as model from "../../model"
-import style from './index.module.css'
-import { FoldableHeader } from './FoldableHeader'
-import { Path } from "./Path"
-import { Hamburger } from "../icons/Hamburger"
+import { SyntheticEvent, useCallback, useContext, useRef, useState } from "react"
 import { useDnd } from "../../hooks/useDnd"
+import * as model from "../../model"
+import { AppContext } from "../App/context"
+import { Hamburger } from "../icons/Hamburger"
+import { FoldableHeader } from './FoldableHeader'
+import style from './index.module.css'
+import { Path } from "./Path"
 
 export const Layer = (
-  { layer, layerI, currentLayer, dispatch, sortHandleMouseDown }: {
+  { layer, layerI, dispatch, sortHandleMouseDown }: {
     layer: model.Layer,
     layerI: number,
-    currentLayer: [Symbol, Dispatch<SetStateAction<Symbol>>],
     dispatch: (operation: (image: model.Image) => model.Image) => void,
     sortHandleMouseDown: (e: SyntheticEvent<HTMLElement, MouseEvent>) => void,
   }) => {
+  const {currentLayerId, setCurrentLayerId} = useContext(AppContext)
   const [showPaths, setShowPaths] = useState(false)
 
   const pathsContainer = useRef(null! as HTMLDivElement)
@@ -49,9 +50,9 @@ export const Layer = (
         <div
           className={style.editTarget}
           style={{
-            color: currentLayer[0] === layer.id ? '#fa0' : '#666',
+            color: currentLayerId === layer.id ? '#fa0' : '#666',
           }}
-          onClick={() => currentLayer[1](layer.id)}
+          onClick={() => setCurrentLayerId(layer.id)}
         >
           <span className="material-symbols-outlined">
             edit

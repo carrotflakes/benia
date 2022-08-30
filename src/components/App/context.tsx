@@ -5,4 +5,6 @@ export const AppContext = createContext({
   setColor: (color: string) => { },
   lineWidth: 1,
   setLineWidth: (lineWidth: number) => { },
+  currentLayerId: null! as symbol,
+  setCurrentLayerId: (id: symbol) => { },
 })

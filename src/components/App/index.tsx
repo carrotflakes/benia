@@ -125,7 +125,7 @@ function App() {
   const dispatch = useCallback((op: (image: Image) => Image) => setImage(i => op(i)), [])
 
   return (
-    <AppContext.Provider value={{ color, setColor, lineWidth, setLineWidth }}>
+    <AppContext.Provider value={{ color, setColor, lineWidth, setLineWidth, currentLayerId: layerI, setCurrentLayerId: setLayerI }}>
       <div
         className={style.App}
         onMouseMove={handlers.onMouseMove}
@@ -162,7 +162,6 @@ function App() {
           </div>
           <TreeView
             image={image}
-            currentLayer={[layerI, setLayerI]}
             dispatch={dispatch}
           />
         </div>
