@@ -10,6 +10,7 @@
     "@types/node": "^16.11.54",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
+    "@types/react-color": "^3.0.6",
     "immer": "^9.0.15",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
@@ -41,8 +42,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@types/react-color": "^3.0.6"
   }
 }

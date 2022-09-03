@@ -12,7 +12,7 @@ export const Path = (
     dispatch: (operation: (image: model.Image) => model.Image) => void;
     sortHandleMouseDown: (e: SyntheticEvent<HTMLElement, MouseEvent>) => void;
   }) => {
-  const appCtx = useContext(AppContext)
+  const { state } = useContext(AppContext)
 
   return (
     <div>
@@ -30,8 +30,8 @@ export const Path = (
         }}
         onClick={() => {
           dispatch(img => produce(img, img => {
-            img.layers[pass[0]].paths[pass[1]].color = appCtx.color
-            img.layers[pass[0]].paths[pass[1]].width = appCtx.lineWidth
+            img.layers[pass[0]].paths[pass[1]].color = state.color
+            img.layers[pass[0]].paths[pass[1]].width = state.lineWidth
           }))
         }}
       ></div>
@@ -51,7 +51,7 @@ export const Path = (
           if (img.layers[pass[0]].paths[pass[1]].fill) {
             img.layers[pass[0]].paths[pass[1]].fill = undefined
           } else {
-            img.layers[pass[0]].paths[pass[1]].fill = appCtx.color
+            img.layers[pass[0]].paths[pass[1]].fill = state.color
           }
         }))}
       >

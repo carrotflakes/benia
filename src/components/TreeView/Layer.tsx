@@ -15,7 +15,7 @@ export const Layer = (
     dispatch: (operation: (image: model.Image) => model.Image) => void,
     sortHandleMouseDown: (e: SyntheticEvent<HTMLElement, MouseEvent>) => void,
   }) => {
-  const {currentLayerId, setCurrentLayerId} = useContext(AppContext)
+  const { state: { currentLayerId }, actions: { setCurrentLayerId } } = useContext(AppContext)
   const [showPaths, setShowPaths] = useState(false)
 
   const pathsContainer = useRef(null! as HTMLDivElement)

@@ -1,83 +1,83 @@
 import produce from 'immer';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useReducer, useRef } from 'react';
 import { CompactPicker } from 'react-color';
-import style from './index.module.css';
-import { useCursorTrackEventHandler } from '../../hooks/useCursorTrack';
-import { Image, Path } from '../../model'
-import { TreeView } from '../../components/TreeView';
 import { PenPicker } from '../../components/PenPicker';
-import { AppContext } from './context';
+import { TreeView } from '../../components/TreeView';
+import { useCursorTrackEventHandler } from '../../hooks/useCursorTrack';
+import { Path } from '../../model';
+import { AppContext, getActions, initialState, Mode, modes, reducer } from './context';
 import { draw } from './draw';
+import style from './index.module.css';
 
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
 
-  const [mode, setMode] = useState('pen' as Mode)
-  const [trail, setTrail] = useState([] as [number, number][])
-  const [dragStart, setDragStart] = useState([0, 0])
-  const [dragEnd, setDragEnd] = useState([0, 0])
-  const [dragging, setDragging] = useState(false)
-  const [image, setImage] = useState(new Image([600, 600]))
-  const [layerI, setLayerI] = useState(image.layers[0].id)
-  const [color, setColor] = useState('black')
-  const [lineWidth, setLineWidth] = useState(3)
+  const [state, dispatch] = useReducer(reducer, initialState())
+  const actions = useMemo(() => getActions(dispatch), [dispatch])
 
   const modeHandlers = useMemo(() => ({
     pen: {
       mouseDown: (pos: [number, number]) => {
-        setTrail([pos])
+        actions.setTrail([pos])
       },
       mouseMove: (pos: [number, number]) => {
-        const last = trail.at(-1)
+        const last = state.trail.at(-1)
         if (last) {
           const d = distance(last, pos)
           if (10 <= d) {
-            setTrail(ps => [...ps, pos])
+            actions.setTrail([...state.trail, pos])
           }
         }
       },
       mouseUp: (e: MouseEvent) => {
-        if (trail.length > 2) {
-          const path = new Path(trail, color, lineWidth)
-          setImage(img => {
+        if (state.trail.length > 2) {
+          const path = new Path(state.trail, state.color, state.lineWidth)
+          actions.setImage(img => {
             return produce(img, (img) => {
-              img.getLayerById(layerI)?.paths.push(path)
+              img.getLayerById(state.currentLayerId)?.paths.push(path)
             })
           })
         }
-        setTrail([])
+        actions.setTrail([])
         e.preventDefault()
       },
     },
     'layer shift': {
       mouseDown: (pos: [number, number]) => {
-        setDragStart(pos)
-        setDragging(true)
+        actions.setDrag({
+          start: pos,
+          end: pos,
+        })
       },
       mouseMove: (pos: [number, number]) => {
-        setDragEnd(pos)
+        if (state.drag)
+          actions.setDrag({
+            start: state.drag.start,
+            end: pos,
+          })
       },
       mouseUp: (e: MouseEvent) => {
-        if (dragging) {
-          setImage(img => {
+        if (state.drag) {
+          const drag = state.drag
+          actions.setImage(img => {
             return produce(img, (img) => {
-              const layer = img.getLayerById(layerI)
+              const layer = img.getLayerById(state.currentLayerId)
               if (!layer) return
               layer.paths = layer.paths.map(p => {
                 p.poses = p.poses.map(p => [
-                  p[0] + dragEnd[0] - dragStart[0],
-                  p[1] + dragEnd[1] - dragStart[1],
+                  p[0] + drag.end[0] - drag.start[0],
+                  p[1] + drag.end[1] - drag.start[1],
                 ])
                 return p
               })
             })
           })
-          setDragging(false)
+          actions.setDrag(null)
         }
         e.preventDefault()
       },
     }
-  }[mode]), [color, dragEnd, dragStart, dragging, layerI, lineWidth, mode, trail])
+  }[state.mode]), [state, actions])
 
   const handlers = useCursorTrackEventHandler(
     modeHandlers.mouseDown,
@@ -92,25 +92,26 @@ function App() {
     if (!ctx)
       return
 
-    let imageToDraw = image
+    let imageToDraw = state.image
 
-    switch (mode) {
+    switch (state.mode) {
       case 'pen':
-        if (trail.length > 2) {
+        if (state.trail.length > 2) {
           imageToDraw = produce(imageToDraw, img => {
-            img.getLayerById(layerI)?.paths.push(new Path(trail, color, lineWidth))
+            img.getLayerById(state.currentLayerId)?.paths.push(new Path(state.trail, state.color, state.lineWidth))
           })
         }
         break
       case 'layer shift':
-        if (dragging) {
+        if (state.drag) {
+          const drag = state.drag
           imageToDraw = produce(imageToDraw, (img) => {
-            const layer = img.getLayerById(layerI)
+            const layer = img.getLayerById(state.currentLayerId)
             if (!layer) return
             layer.paths = layer.paths.map(p => {
               p.poses = p.poses.map(p => [
-                p[0] + dragEnd[0] - dragStart[0],
-                p[1] + dragEnd[1] - dragStart[1],
+                p[0] + drag.end[0] - drag.start[0],
+                p[1] + drag.end[1] - drag.start[1],
               ])
               return p
             })
@@ -120,12 +121,10 @@ function App() {
     }
 
     draw(ctx, imageToDraw)
-  }, [image, trail, color, lineWidth, layerI, dragging, dragEnd, dragStart, mode])
-
-  const dispatch = useCallback((op: (image: Image) => Image) => setImage(i => op(i)), [])
+  }, [state, actions])
 
   return (
-    <AppContext.Provider value={{ color, setColor, lineWidth, setLineWidth, currentLayerId: layerI, setCurrentLayerId: setLayerI }}>
+    <AppContext.Provider value={{ state, actions }}>
       <div
         className={style.App}
         onMouseMove={handlers.onMouseMove}
@@ -137,32 +136,32 @@ function App() {
         </header>
         <div className={style.center}>
           <div>
-            <Tools {...{ mode, setMode }} />
+            <Tools {...{ mode: state.mode, setMode: actions.setMode }} />
             <div>
               <canvas
                 className={style.canvas}
                 ref={canvasRef}
-                width={image.size[0]}
-                height={image.size[1]}
+                width={state.image.size[0]}
+                height={state.image.size[1]}
                 onMouseDown={handlers.onMouseDown}
               ></canvas>
             </div>
             <div>
               <CompactPicker
-                color={color}
+                color={state.color}
                 onChange={c => {
-                  setColor(c.hex)
+                  actions.setColor(c.hex)
                 }}
               />
               <PenPicker
-                lineWidth={lineWidth}
-                onChange={w => setLineWidth(w)}
+                lineWidth={state.lineWidth}
+                onChange={w => actions.setLineWidth(w)}
               />
             </div>
           </div>
           <TreeView
-            image={image}
-            dispatch={dispatch}
+            image={state.image}
+            dispatch={actions.setImage}
           />
         </div>
       </div>
@@ -171,10 +170,6 @@ function App() {
 }
 
 export default App;
-
-const modes = ['pen', 'layer shift'] as const
-
-type Mode = typeof modes[number]
 
 const Tools = ({ mode, setMode }: { mode: Mode, setMode: (mode: Mode) => void }) => {
   return <div style={{ textAlign: 'left' }}>
