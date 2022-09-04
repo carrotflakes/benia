@@ -1,16 +1,22 @@
 import { createContext } from "react";
 import { Image } from "../../model";
 
-export const modes = ['pen', 'layer shift'] as const
 
-export type Mode = typeof modes[number]
+export type Mode = {
+  type: 'pen';
+  trail: [number, number][];
+  // setTrail: (trail: [number, number][]) => void;
+} | {
+  type: 'layer_shift';
+  drag: { start: [number, number], end: [number, number] } | null;
+  // setDrag: (drag: { start: [number, number], end: [number, number] } | null) => void;
+}
+export const modes: Mode['type'][] = ['pen', 'layer_shift']
 
 export const initialState = () => {
   const image = new Image([600, 600])
   return {
-    mode: 'pen' as Mode,
-    trail: [] as [number, number][],
-    drag: null as { start: [number, number], end: [number, number] } | null,
+    mode: null as Mode | null,
     image,
     currentLayerId: image.layers[0].id,
     color: 'black',
@@ -42,24 +48,19 @@ function setLineWidth(lineWidth: State['lineWidth']) {
   })
 }
 
-function setTrail(trail: State['trail']) {
+function setMode(mode: Mode['type']) {
   return (state: State) => ({
     ...state,
-    trail,
-  })
-}
-
-function setDrag(drag: State['drag']) {
-  return (state: State) => ({
-    ...state,
-    drag,
-  })
-}
-
-function setMode(mode: State['mode']) {
-  return (state: State) => ({
-    ...state,
-    mode,
+    mode: {
+      pen: {
+        type: mode,
+        trail: [],
+      },
+      layer_shift: {
+        type: mode,
+        drag: null,
+      }
+    }[mode] as Mode
   })
 }
 
@@ -84,14 +85,34 @@ function setImage(image: State['image'] | ((image: State['image']) => State['ima
   })
 }
 
+function setTrail(trail: [number, number][]) {
+  return (state: State) => (state.mode?.type === 'pen' ? {
+    ...state,
+    mode: {
+      ...state.mode,
+      trail,
+    },
+  } : state)
+}
+
+function setDrag(drag: { start: [number, number], end: [number, number] } | null) {
+  return (state: State) => (state.mode?.type === 'pen' ? {
+    ...state,
+    mode: {
+      ...state.mode,
+      drag,
+    },
+  } : state)
+}
+
 export function getActions(dispatch: (action: Action) => void) {
   return {
     setColor: (...ps: Parameters<typeof setColor>) => dispatch(setColor(...ps)),
     setLineWidth: (...ps: Parameters<typeof setLineWidth>) => dispatch(setLineWidth(...ps)),
-    setTrail: (...ps: Parameters<typeof setTrail>) => dispatch(setTrail(...ps)),
-    setDrag: (...ps: Parameters<typeof setDrag>) => dispatch(setDrag(...ps)),
     setCurrentLayerId: (...ps: Parameters<typeof setCurrentLayerId>) => dispatch(setCurrentLayerId(...ps)),
     setImage: (...ps: Parameters<typeof setImage>) => dispatch(setImage(...ps)),
     setMode: (...ps: Parameters<typeof setMode>) => dispatch(setMode(...ps)),
+    setTrail: (...ps: Parameters<typeof setTrail>) => dispatch(setTrail(...ps)),
+    setDrag: (...ps: Parameters<typeof setDrag>) => dispatch(setDrag(...ps)),
   }
 }
