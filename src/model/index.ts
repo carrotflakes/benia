@@ -28,6 +28,10 @@ export class Layer {
   alpha: number = 1.0
   hide?: boolean
 
+  getPathById(id: symbol) {
+    return this.paths.find(p => p.id === id)
+  }
+
   clone() {
     return {
       ...this,
@@ -51,6 +55,16 @@ export class Path {
     this.width = width
   }
 }
+
+// export class Shape {
+//   [immerable] = true
+//   id: symbol = Symbol('symbol')
+//   paths: Path[] = []
+//   color: string = '#000'
+//   width: number = 1
+//   fill?: string
+
+// }
 
 export type Pos = [number, number]
 
@@ -83,3 +97,7 @@ export const compositeModes: CompositeMode[] = [
   "source-over",
   "xor",
 ]
+
+export const distance = (a: [number, number], b: [number, number]) => {
+  return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2);
+}

@@ -5,9 +5,11 @@ import { PenPicker } from '../../components/PenPicker';
 import { TreeView } from '../../components/TreeView';
 import { useCursorTrackEventHandler } from '../../hooks/useCursorTrack';
 import { Path } from '../../model';
-import { AppContext, getActions, initialState, Mode, modes, reducer } from './context';
-import { draw } from './draw';
-import style from './index.module.css';
+import { AppContext, getActions, initialState, reducer, State } from './context';
+import { draw } from '../../model/draw';
+import styles from './index.module.scss';
+import { Tools } from './Tools';
+import { getPointInImage } from '../../model/getPointInImage';
 
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
@@ -15,77 +17,7 @@ function App() {
   const [state, dispatch] = useReducer(reducer, initialState())
   const actions = useMemo(() => getActions(dispatch), [dispatch])
 
-  const modeHandlers = useMemo(() => {
-    const mode = state.mode
-    switch (mode?.type) {
-      case 'pen': return {
-        mouseDown: (pos: [number, number]) => {
-          actions.setTrail([pos])
-        },
-        mouseMove: (pos: [number, number]) => {
-          const last = mode.trail.at(-1)
-          if (last) {
-            const d = distance(last, pos)
-            if (10 <= d) {
-              actions.setTrail([...mode.trail, pos])
-            }
-          }
-        },
-        mouseUp: (e: MouseEvent) => {
-          if (mode.trail.length > 2) {
-            const path = new Path(mode.trail, state.color, state.lineWidth)
-            actions.setImage(img => {
-              return produce(img, (img) => {
-                img.getLayerById(state.currentLayerId)?.paths.push(path)
-              })
-            })
-          }
-          actions.setTrail([])
-          e.preventDefault()
-        },
-      }
-      case 'layer_shift': return {
-        mouseDown: (pos: [number, number]) => {
-          actions.setDrag({
-            start: pos,
-            end: pos,
-          })
-        },
-        mouseMove: (pos: [number, number]) => {
-          if (mode.drag)
-            actions.setDrag({
-              start: mode.drag.start,
-              end: pos,
-            })
-        },
-        mouseUp: (e: MouseEvent) => {
-          if (mode.drag) {
-            const drag = mode.drag
-            actions.setImage(img => {
-              return produce(img, (img) => {
-                const layer = img.getLayerById(state.currentLayerId)
-                if (!layer) return
-                layer.paths = layer.paths.map(p => {
-                  p.poses = p.poses.map(p => [
-                    p[0] + drag.end[0] - drag.start[0],
-                    p[1] + drag.end[1] - drag.start[1],
-                  ])
-                  return p
-                })
-              })
-            })
-            actions.setDrag(null)
-          }
-          e.preventDefault()
-        },
-      }
-      default: return {
-        mouseDown: () => { },
-        mouseMove: () => { },
-        mouseUp: () => { },
-      }
-    }
-  }, [state, actions])
+  const modeHandlers = useMemo(() => makeHandlers(state, actions), [state, actions])
 
   const handlers = useCursorTrackEventHandler(
     modeHandlers.mouseDown,
@@ -135,20 +67,20 @@ function App() {
   return (
     <AppContext.Provider value={{ state, actions }}>
       <div
-        className={style.App}
+        className={styles.App}
         onMouseMove={handlers.onMouseMove}
       >
         <header>
-          <span className={style.title}>
+          <span className={styles.title}>
             benia - paint app
           </span>
         </header>
-        <div className={style.center}>
+        <div className={styles.center}>
           <div>
             <Tools {...{ mode: state?.mode?.type, setMode: actions.setMode }} />
             <div>
               <canvas
-                className={style.canvas}
+                className={styles.canvas}
                 ref={canvasRef}
                 width={state.image.size[0]}
                 height={state.image.size[1]}
@@ -180,18 +112,96 @@ function App() {
 
 export default App;
 
-const Tools = ({ mode, setMode }: { mode?: Mode['type'], setMode: (mode: Mode['type']) => void }) => {
-  return <div style={{ textAlign: 'left' }}>
-    {modes.map(m => (
-      <span
-        key={m}
-        className={[style.button, m === mode ? style.active : ''].join(' ')}
-        onClick={() => setMode(m)}
-      >
-        {m}
-      </span>
-    ))}
-  </div>;
+function makeHandlers(state: State, actions: ReturnType<typeof getActions>) {
+  const mode = state.mode;
+  switch (mode?.type) {
+    case 'pen': return {
+      mouseDown: (pos: [number, number]) => {
+        actions.setTrail([pos]);
+      },
+      mouseMove: (pos: [number, number]) => {
+        const last = mode.trail.at(-1);
+        if (last) {
+          const d = distance(last, pos);
+          if (10 <= d) {
+            actions.setTrail([...mode.trail, pos]);
+          }
+        }
+      },
+      mouseUp: (e: MouseEvent) => {
+        if (mode.trail.length > 2) {
+          const path = new Path(mode.trail, state.color, state.lineWidth);
+          actions.setImage(img => {
+            return produce(img, (img) => {
+              img.getLayerById(state.currentLayerId)?.paths.push(path);
+            });
+          });
+        }
+        actions.setTrail([]);
+        e.preventDefault();
+      },
+    };
+    case 'layer_shift': return {
+      mouseDown: (pos: [number, number]) => {
+        actions.setDrag({
+          start: pos,
+          end: pos,
+        });
+      },
+      mouseMove: (pos: [number, number]) => {
+        if (mode.drag)
+          actions.setDrag({
+            start: mode.drag.start,
+            end: pos,
+          });
+      },
+      mouseUp: (e: MouseEvent) => {
+        if (mode.drag) {
+          const drag = mode.drag;
+          actions.setImage(img => {
+            return produce(img, (img) => {
+              const layer = img.getLayerById(state.currentLayerId);
+              if (!layer)
+                return;
+              layer.paths = layer.paths.map(p => {
+                p.poses = p.poses.map(p => [
+                  p[0] + drag.end[0] - drag.start[0],
+                  p[1] + drag.end[1] - drag.start[1],
+                ]);
+                return p;
+              });
+            });
+          });
+          actions.setDrag(null);
+        }
+        e.preventDefault();
+      },
+    };
+    case 'move_point': return {
+      mouseDown: (pos: [number, number]) => {
+        const point = getPointInImage(state.image, pos)
+        actions.setPoint(point);
+      },
+      mouseMove: (pos: [number, number]) => {
+        if (mode.point)
+          actions.setImage(produce(state.image, (image) => {
+            if (!mode.point) return
+            const poses =
+              image.getLayerById(mode.point.layerId)?.getPathById(mode.point.pathId)?.poses
+            if (poses)
+              poses[mode.point.posesIdx] = pos
+          }))
+      },
+      mouseUp: (e: MouseEvent) => {
+        actions.setPoint(null)
+      },
+    };
+    default: return {
+      mouseDown: () => { },
+      mouseMove: () => { },
+      mouseUp: () => { },
+    };
+  }
 }
 
 function distance(a: [number, number], b: [number, number]) {

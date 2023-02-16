@@ -5,10 +5,10 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-}
-
-.App > header {
-  flex: 0 0 auto;
+  
+  & > header {
+    flex: 0 0 auto;
+  }
 }
 
 .title {
@@ -23,30 +23,30 @@
   flex-direction: row;
   flex: 1 1 auto;
   overflow-y: auto;
-}
+  
+  & > *:nth-child(1) {
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 
-.center > *:nth-child(1) {
-  flex: 0 1 auto;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
+    & > *:nth-child(1) {
+      flex: 0 0 auto;
+    }
+  
+    & > *:nth-child(2) {
+      flex: 0 1 auto;
+      overflow: auto;
+    }
+  
+    & > *:nth-child(3) {
+      flex: 0 0 auto;
+    }
+  }
 
-.center > *:nth-child(2) {
-  flex: 1 1 auto;
-}
-
-.center > *:nth-child(1) > *:nth-child(1) {
-  flex: 0 0 auto;
-}
-
-.center > *:nth-child(1) > *:nth-child(2) {
-  flex: 0 1 auto;
-  overflow: auto;
-}
-
-.center > *:nth-child(1) > *:nth-child(3) {
-  flex: 0 0 auto;
+  & > *:nth-child(2) {
+    flex: 1 1 auto;
+  }
 }
 
 .canvas {

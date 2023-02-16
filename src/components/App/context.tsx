@@ -1,4 +1,5 @@
-import { createContext } from "react";
+import produce from "immer";
+import { createContext, FC, ReactNode, useMemo, useReducer } from "react";
 import { Image } from "../../model";
 
 
@@ -10,8 +11,15 @@ export type Mode = {
   type: 'layer_shift';
   drag: { start: [number, number], end: [number, number] } | null;
   // setDrag: (drag: { start: [number, number], end: [number, number] } | null) => void;
+} | {
+  type: 'move_point',
+  point: {
+    layerId: symbol,
+    pathId: symbol,
+    posesIdx: number,
+  } | null
 }
-export const modes: Mode['type'][] = ['pen', 'layer_shift']
+export const modes: Mode['type'][] = ['pen', 'layer_shift', 'move_point']
 
 export const initialState = () => {
   const image = new Image([600, 600])
@@ -24,7 +32,7 @@ export const initialState = () => {
   }
 }
 
-type State = ReturnType<typeof initialState>
+export type State = ReturnType<typeof initialState>
 
 type Action = (staet: State) => State
 
@@ -59,7 +67,11 @@ function setMode(mode: Mode['type']) {
       layer_shift: {
         type: mode,
         drag: null,
-      }
+      },
+      move_point: {
+        type: mode,
+        point: null,
+      },
     }[mode] as Mode
   })
 }
@@ -96,13 +108,21 @@ function setTrail(trail: [number, number][]) {
 }
 
 function setDrag(drag: { start: [number, number], end: [number, number] } | null) {
-  return (state: State) => (state.mode?.type === 'pen' ? {
-    ...state,
-    mode: {
-      ...state.mode,
-      drag,
-    },
-  } : state)
+  return (state: State) => produce(state, (state) => {
+    if (state.mode?.type === 'layer_shift')
+      state.mode.drag = drag
+  })
+}
+
+function setPoint(point: {
+  layerId: symbol,
+  pathId: symbol,
+  posesIdx: number,
+} | null) {
+  return (state: State) => produce(state, (state) => {
+    if (state.mode?.type === 'move_point')
+      state.mode.point = point
+  })
 }
 
 export function getActions(dispatch: (action: Action) => void) {
@@ -114,5 +134,17 @@ export function getActions(dispatch: (action: Action) => void) {
     setMode: (...ps: Parameters<typeof setMode>) => dispatch(setMode(...ps)),
     setTrail: (...ps: Parameters<typeof setTrail>) => dispatch(setTrail(...ps)),
     setDrag: (...ps: Parameters<typeof setDrag>) => dispatch(setDrag(...ps)),
+    setPoint: (...ps: Parameters<typeof setPoint>) => dispatch(setPoint(...ps)),
   }
+}
+
+export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, initialState())
+  const actions = useMemo(() => getActions(dispatch), [dispatch])
+
+  return (
+    <AppContext.Provider value={{ state, actions }}>
+      {children}
+    </AppContext.Provider>
+  )
 }

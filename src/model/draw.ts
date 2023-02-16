@@ -1,4 +1,4 @@
-import { Image, Layer } from '../../model';
+import { Image, Layer } from '.';
 
 export function draw(ctx: CanvasRenderingContext2D, image: Image) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
