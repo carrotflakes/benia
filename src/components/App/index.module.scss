@@ -5,7 +5,7 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  
+
   & > header {
     flex: 0 0 auto;
   }
@@ -23,7 +23,7 @@
   flex-direction: row;
   flex: 1 1 auto;
   overflow-y: auto;
-  
+
   & > *:nth-child(1) {
     flex: 0 1 auto;
     display: flex;
@@ -33,12 +33,12 @@
     & > *:nth-child(1) {
       flex: 0 0 auto;
     }
-  
+
     & > *:nth-child(2) {
       flex: 0 1 auto;
       overflow: auto;
     }
-  
+
     & > *:nth-child(3) {
       flex: 0 0 auto;
     }
@@ -49,10 +49,15 @@
   }
 }
 
+.tools {
+  margin: 0 16px;
+  text-align: left;
+}
+
 .canvas {
-  margin: 1em;
+  margin: 16px;
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25);
-  
+
   background: linear-gradient(45deg, #777 25%, transparent 25%, transparent 75%, #777 75%),
               linear-gradient(45deg, #777 25%, transparent 25%, transparent 75%, #777 75%),
               #999;

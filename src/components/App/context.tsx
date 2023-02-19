@@ -126,16 +126,27 @@ function setPoint(point: {
 }
 
 export function getActions(dispatch: (action: Action) => void) {
-  return {
-    setColor: (...ps: Parameters<typeof setColor>) => dispatch(setColor(...ps)),
-    setLineWidth: (...ps: Parameters<typeof setLineWidth>) => dispatch(setLineWidth(...ps)),
-    setCurrentLayerId: (...ps: Parameters<typeof setCurrentLayerId>) => dispatch(setCurrentLayerId(...ps)),
-    setImage: (...ps: Parameters<typeof setImage>) => dispatch(setImage(...ps)),
-    setMode: (...ps: Parameters<typeof setMode>) => dispatch(setMode(...ps)),
-    setTrail: (...ps: Parameters<typeof setTrail>) => dispatch(setTrail(...ps)),
-    setDrag: (...ps: Parameters<typeof setDrag>) => dispatch(setDrag(...ps)),
-    setPoint: (...ps: Parameters<typeof setPoint>) => dispatch(setPoint(...ps)),
+  const actions = {
+    setColor,
+    setLineWidth,
+    setCurrentLayerId,
+    setImage,
+    setMode,
+    setTrail,
+    setDrag,
+    setPoint,
   }
+  return Object.fromEntries(Object.entries(actions).map(([k, v]: any) => [k, (...ps: any) => dispatch(v(...ps))])) as typeof actions
+  // return {
+  //   setColor: (...ps: Parameters<typeof setColor>) => dispatch(setColor(...ps)),
+  //   setLineWidth: (...ps: Parameters<typeof setLineWidth>) => dispatch(setLineWidth(...ps)),
+  //   setCurrentLayerId: (...ps: Parameters<typeof setCurrentLayerId>) => dispatch(setCurrentLayerId(...ps)),
+  //   setImage: (...ps: Parameters<typeof setImage>) => dispatch(setImage(...ps)),
+  //   setMode: (...ps: Parameters<typeof setMode>) => dispatch(setMode(...ps)),
+  //   setTrail: (...ps: Parameters<typeof setTrail>) => dispatch(setTrail(...ps)),
+  //   setDrag: (...ps: Parameters<typeof setDrag>) => dispatch(setDrag(...ps)),
+  //   setPoint: (...ps: Parameters<typeof setPoint>) => dispatch(setPoint(...ps)),
+  // }
 }
 
 export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
