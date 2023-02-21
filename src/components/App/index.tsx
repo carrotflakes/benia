@@ -9,7 +9,7 @@ import { AppContext, getActions, initialState, reducer, State } from './context'
 import { draw } from '../../model/draw';
 import styles from './index.module.scss';
 import { Tools } from './Tools';
-import { getPointInImage } from '../../model/getPointInImage';
+import { getPointInLayer } from '../../model/getPointInImage';
 
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
@@ -32,37 +32,8 @@ function App() {
     if (!ctx)
       return
 
-    let imageToDraw = state.image
-
-    switch (state.mode?.type) {
-      case 'pen':
-        if (state.mode.trail.length > 2) {
-          const trail = state.mode.trail
-          imageToDraw = produce(imageToDraw, img => {
-            img.getLayerById(state.currentLayerId)?.paths.push(new Path(trail, state.color, state.lineWidth))
-          })
-        }
-        break
-      case 'layer_shift':
-        if (state.mode.drag) {
-          const drag = state.mode.drag
-          imageToDraw = produce(imageToDraw, (img) => {
-            const layer = img.getLayerById(state.currentLayerId)
-            if (!layer) return
-            layer.paths = layer.paths.map(p => {
-              p.poses = p.poses.map(p => [
-                p[0] + drag.end[0] - drag.start[0],
-                p[1] + drag.end[1] - drag.start[1],
-              ])
-              return p
-            })
-          })
-        }
-        break
-    }
-
-    draw(ctx, imageToDraw)
-  }, [state, actions])
+    modeHandlers.draw(ctx)
+  }, [modeHandlers])
 
   return (
     <AppContext.Provider value={{ state, actions }}>
@@ -140,6 +111,18 @@ function makeHandlers(state: State, actions: ReturnType<typeof getActions>) {
         actions.setTrail([]);
         e.preventDefault();
       },
+      draw: (ctx: CanvasRenderingContext2D) => {
+        let imageToDraw = state.image
+
+        if (mode.trail.length > 2) {
+          const trail = mode.trail
+          imageToDraw = produce(imageToDraw, img => {
+            img.getLayerById(state.currentLayerId)?.paths.push(new Path(trail, state.color, state.lineWidth))
+          })
+        }
+
+        draw(ctx, imageToDraw)
+      },
     };
     case 'layer_shift': return {
       mouseDown: (pos: [number, number]) => {
@@ -176,10 +159,32 @@ function makeHandlers(state: State, actions: ReturnType<typeof getActions>) {
         }
         e.preventDefault();
       },
+      draw: (ctx: CanvasRenderingContext2D) => {
+        let imageToDraw = state.image
+
+        if (mode.drag) {
+          const drag = mode.drag
+          imageToDraw = produce(imageToDraw, (img) => {
+            const layer = img.getLayerById(state.currentLayerId)
+            if (!layer) return
+            layer.paths = layer.paths.map(p => {
+              p.poses = p.poses.map(p => [
+                p[0] + drag.end[0] - drag.start[0],
+                p[1] + drag.end[1] - drag.start[1],
+              ])
+              return p
+            })
+          })
+        }
+
+        draw(ctx, imageToDraw)
+      },
     };
     case 'move_point': return {
       mouseDown: (pos: [number, number]) => {
-        const point = getPointInImage(state.image, pos)
+        const layer = state.image.getLayerById(state.currentLayerId)
+        if (!layer) return
+        const point = getPointInLayer(layer, pos)
         actions.setPoint(point);
       },
       mouseMove: (pos: [number, number]) => {
@@ -195,11 +200,17 @@ function makeHandlers(state: State, actions: ReturnType<typeof getActions>) {
       mouseUp: (e: MouseEvent) => {
         actions.setPoint(null)
       },
+      draw: (ctx: CanvasRenderingContext2D) => {
+        draw(ctx, state.image)
+      },
     };
     default: return {
       mouseDown: () => { },
       mouseMove: () => { },
       mouseUp: () => { },
+      draw: (ctx: CanvasRenderingContext2D) => {
+        draw(ctx, state.image)
+      },
     };
   }
 }
