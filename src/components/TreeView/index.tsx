@@ -4,13 +4,10 @@ import { useDnd } from "../../hooks/useDnd"
 import * as model from "../../model"
 import style from './index.module.css'
 import { Layer } from "./Layer"
+import { useAppStore } from "../../store"
 
-export const TreeView = (
-  { image, dispatch }:
-    {
-      image: model.Image,
-      dispatch: (operation: (image: model.Image) => model.Image) => void
-    }) => {
+export const TreeView = () => {
+  const { image, setImage } = useAppStore(state => ({ image: state.image, setImage: state.setImage }))
   const layersContainer = useRef(null! as HTMLDivElement)
   const dnd = useDnd<number>(
     useCallback((pos, except) => Array.from(layersContainer.current.children).findIndex((x, i) => {
@@ -21,12 +18,12 @@ export const TreeView = (
     }), []),
     useCallback((s, d) => {
       if (d === -1) return
-      dispatch((img) => produce(img, img => {
+      setImage((img) => produce(img, img => {
         const layer = img.layers[s]
         img.layers.splice(s, 1)
         img.layers.splice(d, 0, layer)
       }))
-    }, [dispatch]),
+    }, [setImage]),
   )
 
   return (
@@ -53,7 +50,6 @@ export const TreeView = (
                 <Layer
                   layer={layer}
                   layerI={i}
-                  dispatch={dispatch}
                   sortHandleMouseDown={dnd.genOnMouseDown(i)}
                 />
               </div>
@@ -63,7 +59,7 @@ export const TreeView = (
         <div
           className={style.button}
           onClick={() => {
-            dispatch((img) => produce(img, img => {
+            setImage((img) => produce(img, img => {
               img.layers.push(new model.Layer())
             }))
           }}

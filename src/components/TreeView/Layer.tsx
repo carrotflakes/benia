@@ -1,21 +1,20 @@
 import produce from "immer"
-import { SyntheticEvent, useCallback, useContext, useRef, useState } from "react"
+import { SyntheticEvent, useCallback, useRef, useState } from "react"
 import { useDnd } from "../../hooks/useDnd"
 import * as model from "../../model"
-import { AppContext } from "../App/context"
 import { Hamburger } from "../icons/Hamburger"
 import { FoldableHeader } from './FoldableHeader'
 import style from './index.module.css'
 import { Path } from "./Path"
+import { useAppStore } from "../../store"
 
 export const Layer = (
-  { layer, layerI, dispatch, sortHandleMouseDown }: {
+  { layer, layerI, sortHandleMouseDown }: {
     layer: model.Layer,
     layerI: number,
-    dispatch: (operation: (image: model.Image) => model.Image) => void,
     sortHandleMouseDown: (e: SyntheticEvent<HTMLElement, MouseEvent>) => void,
   }) => {
-  const { state: { currentLayerId }, actions: { setCurrentLayerId } } = useContext(AppContext)
+  const { currentLayerId, setCurrentLayerId, setImage } = useAppStore(state => ({ currentLayerId: state.currentLayerId, setCurrentLayerId: state.setCurrentLayerId, setImage: state.setImage }))
   const [showPaths, setShowPaths] = useState(false)
 
   const pathsContainer = useRef(null! as HTMLDivElement)
@@ -28,13 +27,13 @@ export const Layer = (
     }), []),
     useCallback((s, d) => {
       if (d === -1) return
-      dispatch((img) => produce(img, img => {
+      setImage((img) => produce(img, img => {
         const layer = img.layers[layerI]
         const path = layer.paths[s]
         layer.paths.splice(s, 1)
         layer.paths.splice(d, 0, path)
       }))
-    }, [dispatch, layerI]),
+    }, [setImage, layerI]),
   )
 
   return (
@@ -60,14 +59,14 @@ export const Layer = (
         </div>
         &nbsp;
         <LayerName name={layer.name} setName={(s) => {
-          dispatch(img => produce(img, img => {
+          setImage(img => produce(img, img => {
             img.layers[layerI].name = s
           }))
         }} />
         &nbsp;
         <span
           className={"material-symbols-outlined " + style.iconButton}
-          onClick={() => dispatch(img => produce(img, img => {
+          onClick={() => setImage(img => produce(img, img => {
             img.layers[layerI].hide = !img.layers[layerI].hide
           }))}
         >
@@ -75,7 +74,7 @@ export const Layer = (
         </span>
         <span
           className={"material-symbols-outlined " + style.iconButton}
-          onClick={() => dispatch(img => produce(img, img => {
+          onClick={() => setImage(img => produce(img, img => {
             img.layers.splice(layerI, 1)
           }))}
         >
@@ -83,14 +82,14 @@ export const Layer = (
         </span>
         <div
           className={style.button}
-          onClick={() => dispatch(img => produce(img, img => {
+          onClick={() => setImage(img => produce(img, img => {
             img.layers[layerI].alpha = img.layers[layerI].alpha === 1.0 ? 0.5 : 1.0
           }))}
         >{layer.alpha}</div>
         <CompositeMode
           compositeMode={layer.compositeMode}
           setCompositeMode={(cm => {
-            dispatch(img => produce(img, img => {
+            setImage(img => produce(img, img => {
               img.layers[layerI].compositeMode = cm
             }))
           })} />
@@ -122,7 +121,6 @@ export const Layer = (
                 <Path
                   path={path}
                   pass={[layerI, i]}
-                  dispatch={dispatch}
                   sortHandleMouseDown={dnd.genOnMouseDown(i)}
                 />
               </div>

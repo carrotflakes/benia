@@ -1,23 +1,22 @@
 import produce from 'immer';
-import { useEffect, useMemo, useReducer, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { CompactPicker } from 'react-color';
 import { PenPicker } from '../../components/PenPicker';
 import { TreeView } from '../../components/TreeView';
 import { useCursorTrackEventHandler } from '../../hooks/useCursorTrack';
 import { Path } from '../../model';
-import { AppContext, getActions, initialState, reducer, State } from './context';
 import { draw } from '../../model/draw';
 import styles from './index.module.scss';
 import { Tools } from './Tools';
 import { getPointInLayer } from '../../model/getPointInImage';
+import { State, useAppStore } from '../../store';
 
 function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
 
-  const [state, dispatch] = useReducer(reducer, initialState())
-  const actions = useMemo(() => getActions(dispatch), [dispatch])
+  const state = useAppStore()
 
-  const modeHandlers = useMemo(() => makeHandlers(state, actions), [state, actions])
+  const modeHandlers = useMemo(() => makeHandlers(state), [state])
 
   const handlers = useCursorTrackEventHandler(
     modeHandlers.mouseDown,
@@ -36,79 +35,74 @@ function App() {
   }, [modeHandlers])
 
   return (
-    <AppContext.Provider value={{ state, actions }}>
-      <div
-        className={styles.App}
-        onMouseMove={handlers.onMouseMove}
-      >
-        <header>
-          <span className={styles.title}>
-            benia - paint app
-          </span>
-        </header>
-        <div className={styles.center}>
+    <div
+      className={styles.App}
+      onMouseMove={handlers.onMouseMove}
+    >
+      <header>
+        <span className={styles.title}>
+          benia - paint app
+        </span>
+      </header>
+      <div className={styles.center}>
+        <div>
+          <Tools />
           <div>
-            <Tools {...{ mode: state?.mode?.type, setMode: actions.setMode }} />
-            <div>
-              <canvas
-                className={styles.canvas}
-                ref={canvasRef}
-                width={state.image.size[0]}
-                height={state.image.size[1]}
-                onMouseDown={handlers.onMouseDown}
-              ></canvas>
-            </div>
-            <div>
-              <CompactPicker
-                color={state.color}
-                onChange={c => {
-                  actions.setColor(c.hex)
-                }}
-              />
-              <PenPicker
-                lineWidth={state.lineWidth}
-                onChange={w => actions.setLineWidth(w)}
-              />
-            </div>
+            <canvas
+              className={styles.canvas}
+              ref={canvasRef}
+              width={state.image.size[0]}
+              height={state.image.size[1]}
+              onMouseDown={handlers.onMouseDown}
+            ></canvas>
           </div>
-          <TreeView
-            image={state.image}
-            dispatch={actions.setImage}
-          />
+          <div>
+            <CompactPicker
+              color={state.color}
+              onChange={c => {
+                state.setColor(c.hex)
+              }}
+            />
+            <PenPicker
+              lineWidth={state.lineWidth}
+              onChange={w => state.setLineWidth(w)}
+            />
+          </div>
         </div>
+        <TreeView />
       </div>
-    </AppContext.Provider>
+    </div>
   )
 }
 
 export default App;
 
-function makeHandlers(state: State, actions: ReturnType<typeof getActions>) {
+function makeHandlers(state: State) {
   const mode = state.mode;
   switch (mode?.type) {
     case 'pen': return {
       mouseDown: (pos: [number, number]) => {
-        actions.setTrail([pos]);
+        state.setTrail([pos]);
       },
       mouseMove: (pos: [number, number]) => {
         const last = mode.trail.at(-1);
         if (last) {
           const d = distance(last, pos);
           if (10 <= d) {
-            actions.setTrail([...mode.trail, pos]);
+            state.setTrail([...mode.trail, pos]);
           }
         }
       },
       mouseUp: (e: MouseEvent) => {
         if (mode.trail.length > 2) {
           const path = new Path(mode.trail, state.color, state.lineWidth);
-          actions.setImage(img => {
+          state.setImage(img => {
             return produce(img, (img) => {
               img.getLayerById(state.currentLayerId)?.paths.push(path);
             });
           });
         }
-        actions.setTrail([]);
+        state.setTrail([]);
         e.preventDefault();
       },
       draw: (ctx: CanvasRenderingContext2D) => {
@@ -126,14 +120,14 @@ function makeHandlers(state: State, actions: ReturnType<typeof getActions>) {
     };
     case 'layer_shift': return {
       mouseDown: (pos: [number, number]) => {
-        actions.setDrag({
+        state.setDrag({
           start: pos,
           end: pos,
         });
       },
       mouseMove: (pos: [number, number]) => {
         if (mode.drag)
-          actions.setDrag({
+          state.setDrag({
             start: mode.drag.start,
             end: pos,
           });
@@ -141,7 +135,7 @@ function makeHandlers(state: State, actions: ReturnType<typeof getActions>) {
       mouseUp: (e: MouseEvent) => {
         if (mode.drag) {
           const drag = mode.drag;
-          actions.setImage(img => {
+          state.setImage(img => {
             return produce(img, (img) => {
               const layer = img.getLayerById(state.currentLayerId);
               if (!layer)
@@ -155,7 +149,7 @@ function makeHandlers(state: State, actions: ReturnType<typeof getActions>) {
               });
             });
           });
-          actions.setDrag(null);
+          state.setDrag(null);
         }
         e.preventDefault();
       },
@@ -185,11 +179,11 @@ function makeHandlers(state: State, actions: ReturnType<typeof getActions>) {
         const layer = state.image.getLayerById(state.currentLayerId)
         if (!layer) return
         const point = getPointInLayer(layer, pos)
-        actions.setPoint(point);
+        state.setPoint(point);
       },
       mouseMove: (pos: [number, number]) => {
         if (mode.point)
-          actions.setImage(produce(state.image, (image) => {
+          state.setImage(produce(state.image, (image) => {
             if (!mode.point) return
             const poses =
               image.getLayerById(mode.point.layerId)?.getPathById(mode.point.pathId)?.poses
@@ -198,7 +192,7 @@ function makeHandlers(state: State, actions: ReturnType<typeof getActions>) {
           }))
       },
       mouseUp: (e: MouseEvent) => {
-        actions.setPoint(null)
+        state.setPoint(null)
       },
       draw: (ctx: CanvasRenderingContext2D) => {
         draw(ctx, state.image)

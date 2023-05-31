@@ -1,7 +1,7 @@
+import { create } from "zustand";
+import { Image } from "./model";
+import { immer } from 'zustand/middleware/immer';
 import produce from "immer";
-import { createContext, FC, ReactNode, useMemo, useReducer } from "react";
-import { Image } from "../../model";
-
 
 export type Mode = {
   type: 'pen';
@@ -21,26 +21,48 @@ export type Mode = {
 }
 export const modes: Mode['type'][] = ['pen', 'layer_shift', 'move_point']
 
-export const initialState = () => {
-  const image = new Image([600, 600])
-  return {
-    mode: null as Mode | null,
-    image,
-    currentLayerId: image.layers[0].id,
-    color: 'black',
-    lineWidth: 3,
-  }
-}
+const image = new Image([600, 600])
 
-export type State = ReturnType<typeof initialState>
+export type State = {
+  mode: Mode | null;
+  image: Image;
+  currentLayerId: symbol;
+  color: string;
+  lineWidth: number;
+  count: number;
+  setColor: (color: string) => void;
+  setLineWidth: (lineWidth: number) => void;
+  setMode: (mode: Mode['type']) => void;
+  setCurrentLayerId: (currentLayerId: symbol) => void;
+  setImage: (image: Image | ((image: Image) => Image)) => void;
+  setTrail: (trail: [number, number][]) => void;
+  setDrag: (drag: { start: [number, number], end: [number, number] } | null) => void;
+  setPoint: (point: {
+    layerId: symbol,
+    pathId: symbol,
+    posesIdx: number,
+  } | null) => void;
+  inc: () => void;
+};
 
-type Action = (staet: State) => State
+export const useAppStore = create<State>()(immer((set) => ({
+  mode: null as Mode | null,
+  image,
+  currentLayerId: image.layers[0].id,
+  color: 'black',
+  lineWidth: 3,
+  count: 0,
+  setColor: (color) => set(setColor(color)),
+  setLineWidth: (lineWidth) => set(setLineWidth(lineWidth)),
+  setMode: (mode) => set(setMode(mode)),
+  setCurrentLayerId: (currentLayerId) => set(setCurrentLayerId(currentLayerId)),
+  setImage: (image) => set(setImage(image)),
+  setTrail: (trail) => set(setTrail(trail)),
+  setDrag: (drag) => set(setDrag(drag)),
+  setPoint: (point) => set(setPoint(point)),
+  inc: () => set((state) => { state.count +=  1 }),
+})));
 
-export const AppContext = createContext({ state: initialState(), actions: getActions(() => { }) })
-
-export const reducer = (state: State, action: Action) => {
-  return action(state)
-}
 
 function setColor(color: State['color']) {
   return (state: State) => ({
@@ -123,39 +145,4 @@ function setPoint(point: {
     if (state.mode?.type === 'move_point')
       state.mode.point = point
   })
-}
-
-export function getActions(dispatch: (action: Action) => void) {
-  const actions = {
-    setColor,
-    setLineWidth,
-    setCurrentLayerId,
-    setImage,
-    setMode,
-    setTrail,
-    setDrag,
-    setPoint,
-  }
-  return Object.fromEntries(Object.entries(actions).map(([k, v]: any) => [k, (...ps: any) => dispatch(v(...ps))])) as typeof actions
-  // return {
-  //   setColor: (...ps: Parameters<typeof setColor>) => dispatch(setColor(...ps)),
-  //   setLineWidth: (...ps: Parameters<typeof setLineWidth>) => dispatch(setLineWidth(...ps)),
-  //   setCurrentLayerId: (...ps: Parameters<typeof setCurrentLayerId>) => dispatch(setCurrentLayerId(...ps)),
-  //   setImage: (...ps: Parameters<typeof setImage>) => dispatch(setImage(...ps)),
-  //   setMode: (...ps: Parameters<typeof setMode>) => dispatch(setMode(...ps)),
-  //   setTrail: (...ps: Parameters<typeof setTrail>) => dispatch(setTrail(...ps)),
-  //   setDrag: (...ps: Parameters<typeof setDrag>) => dispatch(setDrag(...ps)),
-  //   setPoint: (...ps: Parameters<typeof setPoint>) => dispatch(setPoint(...ps)),
-  // }
-}
-
-export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState())
-  const actions = useMemo(() => getActions(dispatch), [dispatch])
-
-  return (
-    <AppContext.Provider value={{ state, actions }}>
-      {children}
-    </AppContext.Provider>
-  )
 }

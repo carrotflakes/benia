@@ -2,17 +2,16 @@ import produce from "immer";
 import * as model from "../../model";
 import style from './index.module.css';
 import { Hamburger } from "../icons/Hamburger";
-import { SyntheticEvent, useContext } from "react";
-import { AppContext } from "../App/context";
+import { SyntheticEvent, } from "react";
+import { useAppStore } from "../../store";
 
 export const Path = (
-  { path, pass, dispatch, sortHandleMouseDown }: {
+  { path, pass, sortHandleMouseDown }: {
     path: model.Path;
     pass: [number, number];
-    dispatch: (operation: (image: model.Image) => model.Image) => void;
     sortHandleMouseDown: (e: SyntheticEvent<HTMLElement, MouseEvent>) => void;
   }) => {
-  const { state } = useContext(AppContext)
+  const state = useAppStore()
 
   return (
     <div>
@@ -29,7 +28,7 @@ export const Path = (
           background: path.color,
         }}
         onClick={() => {
-          dispatch(img => produce(img, img => {
+          state.setImage(img => produce(img, img => {
             img.layers[pass[0]].paths[pass[1]].color = state.color
             img.layers[pass[0]].paths[pass[1]].width = state.lineWidth
           }))
@@ -41,13 +40,13 @@ export const Path = (
       &nbsp;
       <div
         className={style.button}
-        onClick={() => dispatch(img => produce(img, img => {
+        onClick={() => state.setImage(img => produce(img, img => {
           img.layers[pass[0]].paths[pass[1]].close = !img.layers[pass[0]].paths[pass[1]].close
         }))}
       >close</div>
       <span
         className={"material-symbols-outlined " + style.iconButton}
-        onClick={() => dispatch(img => produce(img, img => {
+        onClick={() => state.setImage(img => produce(img, img => {
           if (img.layers[pass[0]].paths[pass[1]].fill) {
             img.layers[pass[0]].paths[pass[1]].fill = undefined
           } else {
@@ -59,7 +58,7 @@ export const Path = (
       </span>
       <span
         className={"material-symbols-outlined " + style.iconButton}
-        onClick={() => dispatch(img => produce(img, img => {
+        onClick={() => state.setImage(img => produce(img, img => {
           img.layers[pass[0]].paths.splice(pass[1], 1)
         }))}
       >
