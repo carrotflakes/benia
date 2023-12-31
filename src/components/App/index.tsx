@@ -1,4 +1,4 @@
-import produce from 'immer';
+import { produce } from 'immer';
 import { useEffect, useMemo, useRef } from 'react';
 import { CompactPicker } from 'react-color';
 import { PenPicker } from '../../components/PenPicker';
@@ -15,6 +15,18 @@ function App() {
   const canvasRef = useRef(null! as HTMLCanvasElement)
 
   const state = useAppStore()
+  const { undo, redo, clear } = useAppStore.temporal.getState();
+
+  useEffect(() => {
+    const keydown = (e: KeyboardEvent): void => {
+      if (e.key === "z" && e.ctrlKey)
+        undo();
+      if (e.key === "Z" && e.ctrlKey)
+        redo();
+    };
+    document.addEventListener("keydown", keydown);
+    return () => document.removeEventListener("keydown", keydown);
+  }, [undo, redo]);
 
   const modeHandlers = useMemo(() => makeHandlers(state), [state])
 

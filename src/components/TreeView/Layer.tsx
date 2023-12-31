@@ -1,4 +1,4 @@
-import produce from "immer"
+import { produce } from "immer"
 import { SyntheticEvent, useCallback, useRef, useState } from "react"
 import { useDnd } from "../../hooks/useDnd"
 import * as model from "../../model"

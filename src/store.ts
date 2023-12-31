@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { Image } from "./model";
 import { immer } from 'zustand/middleware/immer';
-import produce from "immer";
+import { produce } from "immer";
+import { temporal } from "zundo";
 
 export type Mode = {
   type: 'pen';
@@ -29,7 +30,6 @@ export type State = {
   currentLayerId: symbol;
   color: string;
   lineWidth: number;
-  count: number;
   setColor: (color: string) => void;
   setLineWidth: (lineWidth: number) => void;
   setMode: (mode: Mode['type']) => void;
@@ -42,16 +42,14 @@ export type State = {
     pathId: symbol,
     posesIdx: number,
   } | null) => void;
-  inc: () => void;
 };
 
-export const useAppStore = create<State>()(immer((set) => ({
+export const useAppStore = create<State>()(temporal(immer((set) => ({
   mode: null as Mode | null,
   image,
   currentLayerId: image.layers[0].id,
   color: 'black',
   lineWidth: 3,
-  count: 0,
   setColor: (color) => set(setColor(color)),
   setLineWidth: (lineWidth) => set(setLineWidth(lineWidth)),
   setMode: (mode) => set(setMode(mode)),
@@ -60,8 +58,12 @@ export const useAppStore = create<State>()(immer((set) => ({
   setTrail: (trail) => set(setTrail(trail)),
   setDrag: (drag) => set(setDrag(drag)),
   setPoint: (point) => set(setPoint(point)),
-  inc: () => set((state) => { state.count +=  1 }),
-})));
+})), {
+  partialize: (state) => ({
+    image: state.image,
+    currentLayerId: state.currentLayerId,
+  }),
+}));
 
 
 function setColor(color: State['color']) {

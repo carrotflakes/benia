@@ -1,4 +1,4 @@
-import produce from "immer";
+import { produce } from "immer";
 import * as model from "../../model";
 import style from './index.module.css';
 import { Hamburger } from "../icons/Hamburger";
