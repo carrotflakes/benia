@@ -1,8 +1,7 @@
-import { create } from "zustand";
-import { Image } from "./model";
-import { immer } from 'zustand/middleware/immer';
-import { produce } from "immer";
 import { temporal } from "zundo";
+import { create } from "zustand";
+import { immer } from 'zustand/middleware/immer';
+import { Image } from "./model";
 
 export type Mode = {
   type: 'pen';
@@ -67,75 +66,68 @@ export const useAppStore = create<State>()(temporal(immer((set) => ({
 
 
 function setColor(color: State['color']) {
-  return (state: State) => ({
-    ...state,
-    color,
-  })
+  return (state: State) => {
+    state.color = color;
+  }
 }
 
 function setLineWidth(lineWidth: State['lineWidth']) {
-  return (state: State) => ({
-    ...state,
-    lineWidth,
-  })
+  return (state: State) => {
+    state.lineWidth = lineWidth;
+  }
 }
 
 function setMode(mode: Mode['type']) {
-  return (state: State) => ({
-    ...state,
-    mode: {
-      pen: {
-        type: mode,
-        trail: [],
-      },
-      layer_shift: {
-        type: mode,
-        drag: null,
-      },
-      move_point: {
-        type: mode,
-        point: null,
-      },
-    }[mode] as Mode
-  })
+  return (state: State) => {
+    if (modes.includes(mode)) {
+      state.mode = {
+        pen: {
+          type: mode,
+          trail: [],
+        },
+        layer_shift: {
+          type: mode,
+          drag: null,
+        },
+        move_point: {
+          type: mode,
+          point: null,
+        },
+      }[mode] as Mode
+    }
+  }
 }
 
 function setCurrentLayerId(currentLayerId: State['currentLayerId']) {
-  return (state: State) => ({
-    ...state,
-    currentLayerId,
-  })
+  return (state: State) => {
+    state.currentLayerId = currentLayerId;
+  }
 }
 
 function setImage(image: State['image'] | ((image: State['image']) => State['image'])) {
   if (typeof image === 'function') {
-    return (state: State) => ({
-      ...state,
-      image: image(state.image),
-    })
+    return (state: State) => {
+      state.image = image(state.image);
+    }
   }
 
-  return (state: State) => ({
-    ...state,
-    image,
-  })
+  return (state: State) => {
+    state.image = image;
+  }
 }
 
 function setTrail(trail: [number, number][]) {
-  return (state: State) => (state.mode?.type === 'pen' ? {
-    ...state,
-    mode: {
-      ...state.mode,
-      trail,
-    },
-  } : state)
+  return (state: State) => {
+    if (state.mode?.type === 'pen')
+      state.mode.trail = trail
+  }
 }
 
 function setDrag(drag: { start: [number, number], end: [number, number] } | null) {
-  return (state: State) => produce(state, (state) => {
+  return (state: State) => {
     if (state.mode?.type === 'layer_shift')
       state.mode.drag = drag
-  })
+  }
 }
 
 function setPoint(point: {
@@ -143,8 +135,8 @@ function setPoint(point: {
   pathId: symbol,
   posesIdx: number,
 } | null) {
-  return (state: State) => produce(state, (state) => {
+  return (state: State) => {
     if (state.mode?.type === 'move_point')
       state.mode.point = point
-  })
+  }
 }
