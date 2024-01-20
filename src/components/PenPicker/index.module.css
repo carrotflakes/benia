@@ -1,6 +1,7 @@
 .PenPicker {
   display: inline-block;
   margin: 1rem;
+  text-align: left;
 }
 
 .button {
